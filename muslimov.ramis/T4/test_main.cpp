@@ -14,7 +14,8 @@ int main() {
 
     // // Демонстрационный вывод — сразу после выполнения тестов
     // try {
-    //     // Создаём демонстрационный контейнер (в нём минимум 5 фигур, одна составная)
+    //     // Создаём демонстрационный контейнер
+    //(в нём минимум 5 фигур, одна составная)
     //     ShapesContainer container = createDemoContainer();
 
     //     // Установим формат вывода чисел
@@ -24,7 +25,8 @@ int main() {
     //     const auto &items = container.components();
     //     for (const auto &p : items) {
     //         // Если это составная фигура — печатаем многострочно
-    //         if (const CompositeShape *comp = dynamic_cast<const CompositeShape*>(p.get())) {
+    //         if (const CompositeShape *comp =
+    //dynamic_cast<const CompositeShape*>(p.get())) {
     //             shapes_ui::printComposite(std::cout, *comp);
     //         } else {
     //             shapes_ui::printSimple(std::cout, *p);
@@ -37,7 +39,8 @@ int main() {
 
     //     // Вывод после масштабирования
     //     for (const auto &p : items) {
-    //         if (const CompositeShape *comp = dynamic_cast<const CompositeShape*>(p.get())) {
+    //         if (const CompositeShape *comp =
+    //dynamic_cast<const CompositeShape*>(p.get())) {
     //             shapes_ui::printComposite(std::cout, *comp);
     //         } else {
     //             shapes_ui::printSimple(std::cout, *p);
