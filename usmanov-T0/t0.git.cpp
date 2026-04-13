@@ -2,6 +2,6 @@
 
 int main()
 {
-    std::cout << "usmanov.di" << "\n";
+    std::cout << "usmanov.dilshod" << "\n";
 }
 
