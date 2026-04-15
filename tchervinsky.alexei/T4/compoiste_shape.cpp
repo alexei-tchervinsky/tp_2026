@@ -1,40 +1,50 @@
 #include "CompositeShape.hpp"
 
-double max(double a, double b) {
-	if (a < b) { return b; }
+double max(double a, double b)
+{
+	if (a < b)
+	{
+		return b;
+	}
 	return a;
 }
-double min(double a, double b) {
-	if (a < b) { return a; }
+double min(double a, double b)
+{
+	if (a < b)
+	{
+		return a;
+	}
 	return b;
 }
 
-CompositeShape::CompositeShape() :
-	MaxShape(10),
-	size_(0),
-	array_(new Shape* [size_]) {}
+CompositeShape::CompositeShape() : MaxShape(10),
+																	 size_(0),
+																	 array_(new Shape *[size_]) {}
 
-CompositeShape::CompositeShape(const CompositeShape& other) :
-	MaxShape(other.MaxShape),
-	size_(other.size_),
-	array_(new Shape* [size_]) {
-	for (std::size_t i = 0; i < size_; ++i) {
+CompositeShape::CompositeShape(const CompositeShape &other) : MaxShape(other.MaxShape),
+																															size_(other.size_),
+																															array_(new Shape *[size_])
+{
+	for (std::size_t i = 0; i < size_; ++i)
+	{
 		array_[i] = other.array_[i];
 	}
 }
 
-CompositeShape::CompositeShape(CompositeShape&& other) noexcept :
-	MaxShape(other.MaxShape),
-	size_(other.size_),
-	array_(other.array_) {
+CompositeShape::CompositeShape(CompositeShape &&other) noexcept : MaxShape(other.MaxShape),
+																																	size_(other.size_),
+																																	array_(other.array_)
+{
 	other.size_ = 0;
 	other.array_ = nullptr;
 }
 
-FrameRectangle CompositeShape::getFrameRectangle() {
+FrameRectangle CompositeShape::getFrameRectangle()
+{
 	Point a(std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
 	Point b(std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
-	for (std::size_t i = 0; i < size_; ++i) {
+	for (std::size_t i = 0; i < size_; ++i)
+	{
 		FrameRectangle temp = array_[i]->getFrameRectangle();
 		Point temp_a(temp.pos_.GetX() - temp.WIDTH / 2, temp.pos_.GetY() - temp.HEIGHT / 2);
 		Point temp_b(temp.pos_.GetX() + temp.WIDTH / 2, temp.pos_.GetY() + temp.HEIGHT / 2);
@@ -47,13 +57,17 @@ FrameRectangle CompositeShape::getFrameRectangle() {
 	double height = b.GetY() - a.GetY();
 	Point pos_((a.GetX() + b.GetX()) / 2, (a.GetY() + b.GetY()) / 2);
 	return FrameRectangle(width, height, pos_);
-
 }
 
-void CompositeShape::push_back(Shape& data) {
-	if (size_ + 1 > MaxShape) { throw std::out_of_range("Composite shape is full"); }
-	Shape** temp = new Shape * [size_ + 1];
-	for (std::size_t i = 0; i < size_; ++i) {
+void CompositeShape::push_back(Shape &data)
+{
+	if (size_ + 1 > MaxShape)
+	{
+		throw std::out_of_range("Composite shape is full");
+	}
+	Shape **temp = new Shape *[size_ + 1];
+	for (std::size_t i = 0; i < size_; ++i)
+	{
 		temp[i] = array_[i];
 	}
 	temp[size_] = &data;
@@ -62,43 +76,51 @@ void CompositeShape::push_back(Shape& data) {
 	++size_;
 }
 
-void CompositeShape::move(const double k) {
-	for (std::size_t i = 0; i < size_; ++i) {
+void CompositeShape::move(const double k)
+{
+	for (std::size_t i = 0; i < size_; ++i)
+	{
 		array_[i]->move(k);
 	}
 }
 
-void CompositeShape::scale(const double k) {
-	FrameRectangle temp = getFrameRectangle();//получаю общий ограничивающий прямоугольник
+void CompositeShape::scale(const double k)
+{
+	FrameRectangle temp = getFrameRectangle(); // получаю общий ограничивающий прямоугольник
 	Point temp_pos;
-	for (std::size_t i = 0; i < size_; ++i) {
-		temp_pos = array_[i]->getFrameRectangle().pos_;// сохраняю координаты изначальные координаты фигуры
-		// двигаю фигуру в центр общего ограничивающего прямоугольника, чтобы он масштабировался относительно общего центра 
+	for (std::size_t i = 0; i < size_; ++i)
+	{
+		temp_pos = array_[i]->getFrameRectangle().pos_; // сохраняю координаты изначальные координаты фигуры
+		// двигаю фигуру в центр общего ограничивающего прямоугольника, чтобы он масштабировался относительно общего центра
 		array_[i]->move(temp.pos_.GetX() - array_[i]->getFrameRectangle().pos_.GetX(), temp.pos_.GetY() * k - array_[i]->getFrameRectangle().pos_.GetY());
-		array_[i]->scale(k);//масштабирую
-		array_[i]->move(-temp_pos.GetX() * k, -temp_pos.GetY() * k);//вычитаю изначальные масштабированные координаты для сохранения расположения фигуры на составной фигуре 
+		array_[i]->scale(k);																				 // масштабирую
+		array_[i]->move(-temp_pos.GetX() * k, -temp_pos.GetY() * k); // вычитаю изначальные масштабированные координаты для сохранения расположения фигуры на составной фигуре
 	}
 }
-Shape* CompositeShape::operator [](std::size_t index) {
-	if (index >= size_) {
+Shape *CompositeShape::operator[](std::size_t index)
+{
+	if (index >= size_)
+	{
 		throw std::out_of_range("Index greater than array size");
 	}
 	return array_[index];
 }
 
-
-std::size_t CompositeShape::size() const {
+std::size_t CompositeShape::size() const
+{
 	return size_;
 }
 
-void CompositeShape::swap(CompositeShape& other) {
+void CompositeShape::swap(CompositeShape &other)
+{
 	std::swap(size_, other.size_);
 	std::swap(array_, other.array_);
 }
 
-
-CompositeShape& CompositeShape::operator=(const CompositeShape& other) {
-	if (this != &other) {
+CompositeShape &CompositeShape::operator=(const CompositeShape &other)
+{
+	if (this != &other)
+	{
 		CompositeShape temp(other);
 		swap(temp);
 	}
