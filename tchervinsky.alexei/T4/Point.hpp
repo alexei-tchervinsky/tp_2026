@@ -26,7 +26,6 @@ public:
 
 	Point& operator++();
 	Point operator + (const Point& other);
-	Point& operator = (const Point& other);
 	Point operator - (const Point& other);
 	Point& operator *= (const double K);
 };

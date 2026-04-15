@@ -6,6 +6,7 @@
 
 class Shape {
 public:
+	virtual ~Shape() {}
 	virtual double getArea() = 0;
 	virtual FrameRectangle getFrameRectangle() = 0;
 	virtual void move(const double k) = 0;
