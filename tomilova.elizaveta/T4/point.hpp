@@ -6,3 +6,4 @@
     double y{0.0};
  };
  #endif //POINT_HPP
+ 
