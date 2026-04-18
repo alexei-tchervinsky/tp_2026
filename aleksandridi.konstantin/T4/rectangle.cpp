@@ -18,7 +18,7 @@ void Rectangle::scale(double factor) {
     double halfWidth = (right_top_.x_ - left_bottom_.x_) / 2.0;
     double halfHeight = (right_top_.y_ - left_bottom_.y_) / 2.0;
     right_top_.x_ = center.x_ + halfWidth * factor;
-    right_top_.y_ = center.y_ + halfHeight * factor; 
+    right_top_.y_ = center.y_ + halfHeight * factor;
     left_bottom_.x_ = center.x_ - halfWidth * factor;
     left_bottom_.y_ = center.y_ - halfHeight * factor;
 }

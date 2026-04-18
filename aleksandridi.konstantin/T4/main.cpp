@@ -8,9 +8,9 @@
 
 void printShapeInfo(const std::shared_ptr<Shape>& shape) {
     Point center = shape->getCenter();
-    std::cout << "[" << shape->getName() << ", (" 
-              << std::fixed << std::setprecision(2) 
-              << center.x_ << ", " << center.y_ << "), " 
+    std::cout << "[" << shape->getName() << ", ("
+              << std::fixed << std::setprecision(2)
+              << center.x_ << ", " << center.y_ << "), "
               << shape->getArea() << "]" << "\n";
 }
 

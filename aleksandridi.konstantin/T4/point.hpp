@@ -8,7 +8,7 @@ struct Point
 };
 
 struct FrameRect {
-    Point pos_; 
+    Point pos_;
     double width_;
     double height_;
 };

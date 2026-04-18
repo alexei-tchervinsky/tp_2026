@@ -44,7 +44,7 @@ FrameRect CompositeShape::getFrameRect() const {
 
     for (std::size_t i = 1; i < shapes_.size(); ++i) {
         FrameRect rect = shapes_[i]->getFrameRect();
-        
+
         double left = rect.pos_.x_ - rect.width_ / 2.0;
         double right = rect.pos_.x_ + rect.width_ / 2.0;
         double bottom = rect.pos_.y_ - rect.height_ / 2.0;
