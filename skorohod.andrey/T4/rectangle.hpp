@@ -17,7 +17,7 @@ class Rectangle : public Shape
     std::string getName() const;
 
     private:
-    Point Vertex1_, Vertex2_;
+    Point vertex1_, vertex2_, center_;
 };
 
 #endif
