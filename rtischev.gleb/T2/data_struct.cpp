@@ -109,9 +109,11 @@ std::istream& operator>>(std::istream& is, DataStruct& data) {
 
 std::ostream& operator<<(std::ostream& os, const DataStruct& data) {
     iofmtguard guard(os);
-    os << "(:key1 " << std::hex << std::uppercase << data.key1;
+    os << "(:key1 0x" << std::hex << std::uppercase << data.key1;
     os << std::dec;
-    os << ":key2 (:N " << data.key2.first << ":D " << data.key2.second << ":):";
+    os << ":key2 (:N " << data.key2.first << ":D " << data.key2.second << "):";
     os << ":key3 \"" << data.key3 << "\":)";
+
     return os;
 }
+
