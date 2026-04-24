@@ -1,10 +1,3 @@
-//
-//  square.hpp
-//  OOP
-//
-//  Created by Тимур Ахметханов on 21.12.2024.
-//
-
 #ifndef SQUARE_HPP
 #define SQUARE_HPP
 

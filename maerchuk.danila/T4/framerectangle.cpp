@@ -1,10 +1,3 @@
-//
-//  framerectangle.cpp
-//  OOP
-//
-//  Created by Тимур Ахметханов on 21.12.2024.
-//
-
 #include "framerectangle.hpp"
 #include <stdexcept>
 

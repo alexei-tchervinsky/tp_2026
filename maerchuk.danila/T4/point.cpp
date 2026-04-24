@@ -1,10 +1,3 @@
-//
-//  point.cpp
-//  OOP
-//
-//  Created by Тимур Ахметханов on 21.12.2024.
-//
-
 #include "point.hpp"
 #include <stdexcept>
 

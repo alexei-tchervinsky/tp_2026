@@ -1,10 +1,3 @@
-//
-//  point.hpp
-//  OOP
-//
-//  Created by Тимур Ахметханов on 21.12.2024.
-//
-
 #ifndef POINT_HPP
 #define POINT_HPP
 

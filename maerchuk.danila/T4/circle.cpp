@@ -1,10 +1,3 @@
-//
-//  circle.cpp
-//  OOP
-//
-//  Created by Тимур Ахметханов on 21.12.2024.
-//
-
 #include "circle.hpp"
 #include <stdexcept>
 #include <cmath>
@@ -34,7 +27,6 @@ void Circle::move(float dx, float dy) {
     center.move(dx, dy);
 }
 
-
 Circle* Circle::clone() const {
     return new Circle(*this);
 }
@@ -42,4 +34,3 @@ Circle* Circle::clone() const {
 std::string Circle::getName() const {
     return "CIRCLE";
 }
-

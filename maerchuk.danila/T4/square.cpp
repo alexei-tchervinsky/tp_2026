@@ -1,10 +1,3 @@
-//
-//  square.cpp
-//  OOP
-//
-//  Created by Тимур Ахметханов on 21.12.2024.
-//
-
 #include "square.hpp"
 #include <stdexcept>
 
@@ -48,4 +41,3 @@ float Square::getSide() const {
 Point Square::getCenter() const {
     return center;
 }
-

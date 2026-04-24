@@ -1,10 +1,3 @@
-//
-//  shape.hpp
-//  OOP
-//
-//  Created by Тимур Ахметханов on 21.12.2024.
-//
-
 #ifndef SHAPE_HPP
 #define SHAPE_HPP
 

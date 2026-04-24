@@ -1,16 +1,8 @@
-//
-//  main.cpp
-//  OOP
-//
-//  Created by Тимур Ахметханов on 21.12.2024.
-//
-
 #include "shape.hpp"
 #include "circle.hpp"
 #include "square.hpp"
 #include <iostream>
 #include <iomanip>
-
 
 void PrintShapeInfo(const Shape& shape) {
     std::string name = shape.getName();
@@ -30,10 +22,7 @@ void PrintShapeInfo(const Shape& shape) {
     std::cout << name << " " << area << " " << left << " " << bottom << " " << right << " " << top << std::endl;
 }
 
-
-
 int main() {
-    // insert code here...
     std::cout << "Hello, World!\n";
 
     Point circleCenter(2.0f, 3.0f);

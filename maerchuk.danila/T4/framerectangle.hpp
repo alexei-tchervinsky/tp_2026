@@ -1,10 +1,3 @@
-//
-//  framerectangle.hpp
-//  OOP
-//
-//  Created by Тимур Ахметханов on 21.12.2024.
-//
-
 #ifndef FRAMERECTANGLE_HPP
 #define FRAMERECTANGLE_HPP
 
