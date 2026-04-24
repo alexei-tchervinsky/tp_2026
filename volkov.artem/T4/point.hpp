@@ -1,5 +1,5 @@
-#ifndef POINT_H
-#define POINT_H
+#ifndef POINT_HPP
+#define POINT_HPP
 
 struct Point {
     double x;

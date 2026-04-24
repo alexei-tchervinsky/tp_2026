@@ -1,4 +1,4 @@
-#include "rectangle.h"
+#include "rectangle.hpp"
 
 Rectangle::Rectangle(const Point &lb, const Point &rt) : leftBottom(lb), rightTop(rt) {
 }

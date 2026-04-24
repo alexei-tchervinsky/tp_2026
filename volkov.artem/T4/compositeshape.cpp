@@ -1,6 +1,6 @@
-#include "compositeshape.h"
-#include "rectangle.h"
-#include "circle.h"
+#include "compositeshape.hpp"
+#include "rectangle.hpp"
+#include "circle.hpp"
 #include <cmath>
 
 const double PI = 3.14159265358979323846;

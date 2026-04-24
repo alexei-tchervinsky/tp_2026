@@ -2,9 +2,9 @@
 #include <vector>
 #include <memory>
 #include <iomanip>
-#include "rectangle.h"
-#include "circle.h"
-#include "compositeshape.h"
+#include "rectangle.hpp"
+#include "circle.hpp"
+#include "compositeshape.hpp"
 
 void printShape(const std::shared_ptr<Shape> &shape) {
     Point center = shape->getCenter();

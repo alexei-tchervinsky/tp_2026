@@ -1,8 +1,8 @@
-#ifndef SHAPE_H
-#define SHAPE_H
+#ifndef SHAPE_HPP
+#define SHAPE_HPP
 
 #include <string>
-#include "point.h"
+#include "point.hpp"
 
 class Shape {
 public:
