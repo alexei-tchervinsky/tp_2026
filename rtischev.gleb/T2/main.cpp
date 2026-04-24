@@ -17,8 +17,8 @@ int main() {
         if (a.key1 != b.key1) {
             return a.key1 < b.key1;
         }
-        double value_a = (double)a.key2.first / a.key2.second;
-        double value_b = (double)b.key2.first / b.key2.second;
+        double value_a = static_cast<double>(a.key2.first) / a.key2.second;
+        double value_b = static_cast<double>(b.key2.first) / b.key2.second;
         if (value_a > value_b) {
             return false;
         } else if (value_a < value_b) {
