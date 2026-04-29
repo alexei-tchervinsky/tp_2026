@@ -50,7 +50,7 @@ std::istream & ds::operator>>(std::istream &is, RationalIO &&dest) {
     return is >> DelimiterIO{'('}
         >> LabelIO{":N"} >> dest.ref.first
         >> LabelIO{":D"} >> dest.ref.second
-        >> DelimiterIO{')'};
+        >> LabelIO{":)"};
 }
 
 std::istream & ds::operator>>(std::istream &is, StringIO &&dest) {
