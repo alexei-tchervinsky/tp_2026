@@ -86,24 +86,27 @@ std::istream & operator>>(std::istream &is, Polygon &dest) {
 
     Polygon input;
     int expected_point_count = 0;
-    int successful_points = 0;
 
     is >> IntIO{expected_point_count};
+    if (!is || expected_point_count < 3) {
+        is.setstate(std::ios::failbit);
+        return is;
+    }
 
     for (std::size_t i = 0; i < static_cast<std::size_t>(expected_point_count); ++i) {
         Point point;
 
-        is >> DelimiterIO{'('};
-        is >> IntIO{point.x} >> DelimiterIO{';'} >> IntIO{point.y};
-        is >> DelimiterIO{')'};
+        if (!(is >> DelimiterIO{'('}
+                  >> IntIO{point.x}
+                  >> DelimiterIO{';'}
+                  >> IntIO{point.y}
+                  >> DelimiterIO{')'})) {
+            return is;
+        }
 
         input.addPoint(point);
-        ++successful_points;
     }
-
-    if (is && expected_point_count == successful_points) {
-        dest = std::move(input);
-    }
+    dest = std::move(input);
     return is;
 }
 

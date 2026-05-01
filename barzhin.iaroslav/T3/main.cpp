@@ -3,6 +3,8 @@
 #include <vector>
 #include <numeric>
 #include <limits>
+#include <algorithm>
+#include <cctype>
 
 #include "polygon.hpp"
 #include "utils.hpp"
@@ -11,6 +13,12 @@ int main(int argc, char* argv[]) {
     if (argc != 2) {
         std::cerr << "Error: filename is not provided" << std::endl;
         return 1;
+    };
+
+    auto is_unsigned_number = [](const std::string &value) {
+        return !value.empty() && std::all_of(value.begin(), value.end(), [](unsigned char c) {
+            return std::isdigit(c) != 0;
+        });
     };
 
     auto polygons = Utils::load_from_file(argv[1]);
@@ -31,8 +39,11 @@ int main(int argc, char* argv[]) {
                     std::cout << Utils::cmd_AREA_EVEN_ODD(polygons, true) << std::endl;
                 } else if (sub == "MEAN") {
                     std::cout << Utils::cmd_AREA_MEAN(polygons) << std::endl;
-                } else if (std::isdigit(sub[0])) {
+                } else if (is_unsigned_number(sub)) {
                     std::size_t num = std::stoul(sub);
+                    if (num < 3) {
+                        throw std::invalid_argument("");
+                    }
                     std::cout << Utils::cmd_AREA_NUM(polygons, num) << std::endl;
                 } else {
                     throw std::invalid_argument("");
@@ -59,19 +70,46 @@ int main(int argc, char* argv[]) {
                     std::cout << Utils::cmd_COUNT_EVEN_ODD(polygons, false) << std::endl;
                 } else if (sub == "ODD") {
                     std::cout << Utils::cmd_COUNT_EVEN_ODD(polygons, true) << std::endl;
-                } else if (std::isdigit(sub[0])) {
+                } else if (is_unsigned_number(sub)) {
                     std::size_t num = std::stoul(sub);
+                    if (num < 3) {
+                        throw std::invalid_argument("");
+                    }
                     std::cout << Utils::cmd_COUNT_NUM(polygons, num) << std::endl;
                 } else {
                     throw std::invalid_argument("");
                 }
             } else if (command == "ECHO") {
                 Polygon p;
-                std::cin >> p;
+                if (!(std::cin >> p)) {
+                    std::cout << "<INVALID COMMAND>" << std::endl;
+                    std::cin.clear();
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                    continue;
+                }
+                // ensure no extra tokens remain on the same line
+                std::string rest;
+                std::getline(std::cin, rest);
+                if (rest.find_first_not_of(" \t\r\n") != std::string::npos) {
+                    std::cout << "<INVALID COMMAND>" << std::endl;
+                    continue;
+                }
                 std::cout << Utils::cmd_ECHO_POLYGON(polygons, p) << std::endl;
             } else if (command == "INFRAME") {
                 Polygon p;
-                std::cin >> p;
+                if (!(std::cin >> p)) {
+                    std::cout << "<INVALID COMMAND>" << std::endl;
+                    std::cin.clear();
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                    continue;
+                }
+                // ensure no extra tokens remain on the same line
+                std::string rest;
+                std::getline(std::cin, rest);
+                if (rest.find_first_not_of(" \t\r\n") != std::string::npos) {
+                    std::cout << "<INVALID COMMAND>" << std::endl;
+                    continue;
+                }
                 std::cout << (Utils::cmd_INFRAME_POLYGON(polygons, p) ? "<TRUE>" : "<FALSE>") << std::endl;
             } else {
                 throw std::runtime_error("Unknown command");

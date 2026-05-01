@@ -5,6 +5,7 @@
 #include <iterator>
 #include <numeric>
 #include <algorithm>
+#include <sstream>
 
 void Utils::setup_iomanip(std::ostream &os) {
     os << std::setprecision(K_PRECISION) << std::fixed;
@@ -13,9 +14,17 @@ void Utils::setup_iomanip(std::ostream &os) {
 std::vector<Polygon> Utils::load_from_file(char* filename) {
     std::ifstream file(filename);
     std::vector<Polygon> result;
-    std::copy(std::istream_iterator<Polygon>(file),
-              std::istream_iterator<Polygon>(),
-              std::back_inserter(result));
+
+    std::string line;
+    while (std::getline(file, line)) {
+        std::istringstream line_stream(line);
+        Polygon polygon;
+
+        if ((line_stream >> polygon) && (line_stream >> std::ws).eof()) {
+            result.push_back(std::move(polygon));
+        }
+    }
+
     return result;
 }
 
