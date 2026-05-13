@@ -7,9 +7,10 @@
 
 #include "polygon.hpp"
 #include "utils.hpp"
-
+void run_test();
 int main(int argc, char* argv[])
 {
+    run_test();
     if (argc < 2)
     {
         std::cerr << "Error: no filename provided\n";

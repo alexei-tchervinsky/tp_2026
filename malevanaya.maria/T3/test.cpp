@@ -186,7 +186,7 @@ void testCommandOutputs()
     std::cout << "[pass] testCommandOutputs\n";
 }
 
-int main()
+void run_test()
 {
     std::cout << "T3 tests\n";
     testPointIO();
@@ -197,5 +197,4 @@ int main()
     testInframe();
     testCommandOutputs();
     std::cout << "end of tests\n";
-    return 0;
 }
