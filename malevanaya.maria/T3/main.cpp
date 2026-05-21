@@ -2,17 +2,19 @@
 #include <fstream>
 #include <vector>
 #include <string>
-#include <sstream>
 #include <algorithm>
+#include <functional>
+#include <map>
+#include <limits>
 
 #include "polygon.hpp"
 #include "utils.hpp"
-void run_test();
+
 int main(int argc, char* argv[])
 {
-    if (argc < 2)
+    if (argc != 2)
     {
-        std::cerr << "Error: no filename provided\n";
+        std::cerr << "Error: filename is not provided\n";
         return 1;
     }
 
@@ -23,74 +25,39 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    std::vector<std::string> lines;
+    std::vector<Polygon> polygons;
     {
         std::string ln;
         while (std::getline(file, ln))
-            lines.push_back(std::move(ln));
-    }
-    file.close();
-
-    std::vector<Polygon> polygons;
-    polygons.reserve(lines.size());
-    std::transform(lines.begin(), lines.end(), std::back_inserter(polygons),
-        [](const std::string& s) -> Polygon
         {
             Polygon p;
-            parseLine(s, p);
-            return p;
-        });
-    polygons.erase(
-        std::remove_if(polygons.begin(), polygons.end(),
-            [](const Polygon& p) { return p.points.size() < 3; }),
-        polygons.end());
+            if (parseLine(ln, p) && p.points.size() >= 3)
+                polygons.push_back(std::move(p));
+        }
+    }
 
-    std::string cmd;
-    while (std::cin >> cmd)
+    std::map< std::string, std::function< void() > > cmds;
+    cmds["AREA"] = std::bind(cmd::AREA, std::cref(polygons), std::ref(std::cin), std::ref(std::cout));
+    cmds["MAX"] = std::bind(cmd::MAX, std::cref(polygons), std::ref(std::cin), std::ref(std::cout));
+    cmds["MIN"] = std::bind(cmd::MIN, std::cref(polygons), std::ref(std::cin), std::ref(std::cout));
+    cmds["COUNT"] = std::bind(cmd::COUNT, std::cref(polygons), std::ref(std::cin), std::ref(std::cout));
+    cmds["INFRAME"] = std::bind(cmd::INFRAME, std::cref(polygons), std::ref(std::cin), std::ref(std::cout));
+    cmds["RIGHTSHAPES"] = std::bind(cmd::RIGHTSHAPES, std::cref(polygons), std::ref(std::cin), std::ref(std::cout));
+
+    std::string command;
+    while (!(std::cin >> command).eof())
     {
-        if (cmd == "AREA")
+        try
         {
-            std::string param;
-            if (!(std::cin >> param)) { std::cout << "<INVALID COMMAND>\n"; continue; }
-            cmdArea(polygons, param);
+            cmds.at(command)();
         }
-        else if (cmd == "MAX")
+        catch (const std::exception&)
         {
-            std::string param;
-            if (!(std::cin >> param)) { std::cout << "<INVALID COMMAND>\n"; continue; }
-            cmdMax(polygons, param);
-        }
-        else if (cmd == "MIN")
-        {
-            std::string param;
-            if (!(std::cin >> param)) { std::cout << "<INVALID COMMAND>\n"; continue; }
-            cmdMin(polygons, param);
-        }
-        else if (cmd == "COUNT")
-        {
-            std::string param;
-            if (!(std::cin >> param)) { std::cout << "<INVALID COMMAND>\n"; continue; }
-            cmdCount(polygons, param);
-        }
-        else if (cmd == "INFRAME")
-        {
-            std::string rest;
-            std::getline(std::cin, rest);
-            std::istringstream iss(rest);
-            Polygon poly;
-            if (!parsePolygonArg(iss, poly)) { std::cout << "<INVALID COMMAND>\n"; continue; }
-            cmdInframe(polygons, poly);
-        }
-        else if (cmd == "RIGHTSHAPES")
-        {
-            cmdRightshapes(polygons);
-        }
-        else
-        {
-            std::string rest;
-            std::getline(std::cin, rest);
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
             std::cout << "<INVALID COMMAND>\n";
         }
     }
+
     return 0;
 }
