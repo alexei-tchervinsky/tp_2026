@@ -10,6 +10,7 @@
 #include <stdexcept>
 #include <sstream>
 
+
 bool parsePolygonArg(std::istream& in, Polygon& poly)
 {
     std::size_t n = 0;
