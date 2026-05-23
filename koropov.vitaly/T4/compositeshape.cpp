@@ -1,4 +1,4 @@
-#include "compositeshape.h"
+#include "compositeshape.hpp"
 CompositeShape::CompositeShape() {
 }
 Point CompositeShape::getMinPoint() const {

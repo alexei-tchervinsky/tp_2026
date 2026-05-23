@@ -1,8 +1,8 @@
 #include <iostream>
 #include <memory>
-#include "rectangle.h"
-#include "circle.h"
-#include "compositeshape.h"
+#include "rectangle.hpp"
+#include "circle.hpp"
+#include "compositeshape.hpp"
 int main() {
     Point lb;
     lb.x = 0;

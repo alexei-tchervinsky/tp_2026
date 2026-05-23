@@ -1,7 +1,7 @@
 #ifndef CIRCLE_H
 #define CIRCLE_H
-#include "point.h"
-#include "shape.h"
+#include "point.hpp"
+#include "shape.hpp"
 #include <string>
 class Circle : public Shape {
 private:

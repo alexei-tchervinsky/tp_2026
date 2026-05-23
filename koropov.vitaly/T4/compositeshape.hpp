@@ -1,7 +1,7 @@
-#ifndef COMPOSITESHAPE_H
-#define COMPOSITESHAPE_H
-#include "point.h"
-#include "shape.h"
+#ifndef COMPOSITESHAPE_HPP
+#define COMPOSITESHAPE_HPP
+#include "point.hpp"
+#include "shape.hpp"
 #include <string>
 #include <vector>
 #include <memory>

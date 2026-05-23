@@ -1,4 +1,4 @@
-#include "circle.h"
+#include "circle.hpp"
 Circle::Circle(Point center, double radius) {
 	this->center = center;
 	this->radius = radius;
