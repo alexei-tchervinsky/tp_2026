@@ -44,5 +44,3 @@ update-stats.sh
 # nix
 **/*.o
 **/app
-.idea/
-**/lab2
