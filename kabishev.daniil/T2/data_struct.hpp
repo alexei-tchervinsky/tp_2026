@@ -3,12 +3,13 @@
 
 #include <iostream>
 #include <string>
+#include <utility>
 
 namespace kabishev {
 
     struct DataStruct {
-        char key1;
-        unsigned long long key2; // Изменили тип с pair на unsigned long long
+        unsigned long long key1;
+        std::pair<long long, unsigned long long> key2;
         std::string key3;
     };
 
