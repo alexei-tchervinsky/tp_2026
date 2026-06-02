@@ -59,3 +59,4 @@ Rectangle* Rectangle::clone() const {
 const char* Rectangle::getName() const {
     return "RECTANGLE";
 }
+
