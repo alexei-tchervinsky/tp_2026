@@ -8,10 +8,10 @@
 class TextProcessor
 {
 public:
-	static int processFile(const std::string& filePath, HashTable& hashTable);
+    static int processFile(const std::string& filePath, HashTable& hashTable);
 
 private:
-	static std::string normalise_(const std::string& token);
+    static std::string normalise_(const std::string& token);
 };
 
 #endif // TEXTPROCESSOR_HPP
