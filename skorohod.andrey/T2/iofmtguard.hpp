@@ -5,7 +5,6 @@
 
 namespace asik
 {
-// scope guard для возврата состояния потока в первоначальное состояние
   class iofmtguard
   {
   public:

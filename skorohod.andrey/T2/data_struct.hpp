@@ -10,7 +10,7 @@ namespace asik
     std::pair<long long, unsigned long long> key1;
     char key2;
     std::string key3;
-    bool operator < (const DataStruct & other);
+    bool operator < (const DataStruct & other) const;
   };
 
   struct DelimiterIO
@@ -28,15 +28,15 @@ namespace asik
     std::string& ref;
   };
 
-  struct LabelIO
+  struct CharIO
   {
-    std::string exp;
+    char& ref;
   };
 
   std::istream& operator>>(std::istream& in, DelimiterIO&& dest);
   std::istream& operator>>(std::istream& in, RatLspIO&& dest);
   std::istream& operator>>(std::istream& in, StringIO&& dest);
-  std::istream& operator>>(std::istream& in, LabelIO&& dest);
+  std::istream& operator>>(std::istream& in, CharIO&& dest);
   std::istream& operator>>(std::istream& in, DataStruct& dest);
   std::ostream& operator<<(std::ostream& out, const DataStruct& dest);
 }

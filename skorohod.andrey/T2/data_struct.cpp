@@ -27,9 +27,10 @@ namespace asik
     {
       return in;
     }
-    //(:N -1:D 5:):
-    return in >> DelimiterIO{ '(' } >> DelimiterIO{ ':' } >> DelimiterIO{ 'N' } >> DelimiterIO{ ' ' }
-              >> DelimiterIO{ '(' } dest.ref.first >> DelimiterIO{ 'd' };
+    in >> DelimiterIO{ '(' } >> DelimiterIO{ ':' } >> DelimiterIO{ 'N' }
+       >> dest.ref.first >> DelimiterIO{ ':' } >> DelimiterIO{ 'D' }
+       >> dest.ref.second >> DelimiterIO{ ':' } >> DelimiterIO{ ')' };
+    return in;
   }
 
   std::istream& operator>>(std::istream& in, StringIO&& dest)
@@ -39,95 +40,89 @@ namespace asik
     {
       return in;
     }
-    return std::getline(in >> DelimiterIO{ '"' }, dest.ref, '"');
+    std::getline(in >> DelimiterIO{ '"' }, dest.ref, '"');
+    return in;
   }
 
-  std::istream& operator>>(std::istream& in, LabelIO&& dest)
+  std::istream& operator>>(std::istream& in, CharIO&& dest)
   {
     std::istream::sentry sentry(in);
     if (!sentry)
     {
       return in;
     }
-    std::string data = "";
-    if ((in >> StringIO{ data }) && (data != dest.exp))
-    {
-      in.setstate(std::ios::failbit);
-    }
+    in >> DelimiterIO{ '\'' } >> dest.ref >> DelimiterIO{ '\'' };
     return in;
   }
 
   std::istream& operator>>(std::istream& in, DataStruct& dest)
   {
-    std::istream::sentry sentry(in);
-    if (!sentry)
-    {
-      return in;
-    }
-    DataStruct input;
-    bool keys_valid[2] {false, false };
-    std::size_t keys_valid_size = sizeof(keys_valid) / sizeof(keys_valid[0]);
-    std::size_t keys_valid_last = keys_valid_size - 1;
-    std::string key_current;
-    {
-      using sep = DelimiterIO;
-      using dbl = RatLspIO;
-      using str = StringIO;
-      in >> sep{ '{' };
-      for (std::size_t i = 0; i < keys_valid_size ; ++i)
+      std::istream::sentry sentry(in);
+      if (!sentry)
       {
-        in >> str{ key_current };
-        if (in && key_current == "key1")
-        {
-          in >> sep{ ':' } >> dbl{ input.key1 };
-          if (i != keys_valid_last)
-          {
-            in >> sep{ ',' };
-          }
-          if (in)
-          {
-            keys_valid[0] = true;
-          }
-        }
-        else if (in && key_current == "key2")
-        {
-          in >> sep{ ':' } >> str{ input.key3 };
-          if (i != keys_valid_last)
-          {
-            in >> sep{ ',' };
-          }
-          if (in)
-          {
-            keys_valid[1] = true;
-          }
-        }
+          return in;
       }
-      in >> sep{ '}' };
-    }
-    if (in)
-    {
-      if ((keys_valid[0] == keys_valid[1]) == true)
+      in >> DelimiterIO{ '(' } >> DelimiterIO{ ':' };
+      DataStruct input;
+      bool hasKey1 = false, hasKey2 = false, hasKey3 = false;
+      while (in && in.peek() != ')')
       {
-        dest = std::move(input);
+          if (in.peek() == ')') break;
+
+          std::string key;
+          std::getline(in, key, ' ');
+          in >> std::ws;
+
+          if (key == "key1")
+          {
+              in >> RatLspIO{ input.key1 };
+              hasKey1 = true;
+          }
+          else if (key == "key2")
+          {
+              in >> CharIO{ input.key2 };
+              hasKey2 = true;
+          }
+          else if (key == "key3")
+          {
+              in >> StringIO{ input.key3 };
+              hasKey3 = true;
+          }
+          else
+          {
+              in.setstate(std::ios::failbit);
+              break;
+          }
+
+          in >> DelimiterIO{ ':' };
+          if (!in) break;
+      }
+
+      in >> DelimiterIO{ ')' };
+      if (in && hasKey1 && hasKey2 && hasKey3)
+      {
+          dest = std::move(input);
       }
       else
       {
-        in.setstate(std::ios::failbit);
+          in.setstate(std::ios::failbit);
       }
-    }
-    return in;
+      return in;
   }
 
-  bool DataStruct::operator < (const DataStruct & other)
+  bool DataStruct::operator<(const DataStruct& other) const
   {
-    if (key1 != other.key1)
-    {
-      return (key1 < other.key1);
-    }
-    else
-    {
-      return key2 < other.key2;
-    }
+      long double val1 = static_cast<long double>(key1.first) / key1.second;
+      long double val2 = static_cast<long double>(other.key1.first) / other.key1.second;
+      if (val1 != val2)
+      {
+          return val1 < val2;
+      }
+      if (key2 != other.key2)
+      {
+          return key2 < other.key2;
+      }
+      return key3.length() < other.key3.length();
   }
 
   std::ostream& operator<<(std::ostream& out, const DataStruct& src)
@@ -138,10 +133,9 @@ namespace asik
       return out;
     }
     iofmtguard fmtguard(out);
-    out << "{ ";
-    out << "\"key1\": " << std::fixed << std::setprecision(1) << src.key1 << "d, ";
-    out << "\"key2\": " << src.key2;
-    out << " }";
+    out << "(:key1 (:N " << src.key1.first << ":D " << src.key1.second << ":)"
+      << ":key2 '" << src.key2 << "'"
+      << ":key3 \"" << src.key3 << "\":)";
     return out;
   }
 }
