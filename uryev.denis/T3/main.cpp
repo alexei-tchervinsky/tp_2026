@@ -152,9 +152,18 @@ void handleEcho(std::vector<Polygon>& polygons, std::istream& is) {
     std::cout << "<INVALID COMMAND>\n";
     return;
   }
+  
+  // Проверяем, что в потоке аргументов не осталось лишнего мусора
+  std::string extra;
+  if (is >> extra) {
+    std::cout << "<INVALID COMMAND>\n";
+    return;
+  }
+
   std::vector<Polygon> updatedCollection;
   updatedCollection.reserve(polygons.size() * 2);
   size_t addedCount = 0;
+  
   std::for_each(polygons.begin(), polygons.end(), [&](const Polygon& p) {
     updatedCollection.push_back(p);
     if (isPolygonEqual(p, target)) {
@@ -162,6 +171,7 @@ void handleEcho(std::vector<Polygon>& polygons, std::istream& is) {
       addedCount++;
     }
   });
+  
   polygons = std::move(updatedCollection);
   std::cout << addedCount << "\n";
 }
@@ -172,15 +182,24 @@ void handleInFrame(const std::vector<Polygon>& polygons, std::istream& is) {
     std::cout << "<INVALID COMMAND>\n";
     return;
   }
-  if (polygons.empty()) {
-    std::cout << "0\n";
+
+  std::string extra;
+  if (is >> extra) {
+    std::cout << "<INVALID COMMAND>\n";
     return;
   }
-  Frame currentFrame = getCollectionFrame(polygons);
+
+  // Если коллекция пуста — вычислить рамку невозможно, это ошибка ввода
+  if (polygons.empty()) {
+    std::cout << "<INVALID COMMAND>\n";
+    return;
+  }
+
+  const Frame currentFrame = getCollectionFrame(polygons);
   if (isPolygonInFrame(target, currentFrame)) {
-    std::cout << "1\n";
+    std::cout << "<TRUE>\n";
   } else {
-    std::cout << "0\n";
+    std::cout << "<FALSE>\n";
   }
 }
 
