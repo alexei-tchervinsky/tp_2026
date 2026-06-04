@@ -2,7 +2,6 @@
 #include <numeric>
 #include <algorithm>
 #include <cmath>
-#include <iterator>
 
 std::istream& operator>>(std::istream& in, Point& dest) {
   std::istream::sentry sentry(in);
@@ -22,31 +21,32 @@ std::istream& operator>>(std::istream& in, Point& dest) {
 std::istream& operator>>(std::istream& in, Polygon& dest) {
   std::istream::sentry sentry(in);
   if (!sentry) return in;
+  
   size_t numPoints = 0;
   if (!(in >> numPoints) || numPoints < 3) {
     in.setstate(std::ios::failbit);
     return in;
   }
-  std::vector< Point > tempPoints;
-  tempPoints.reserve(numPoints);
-  std::transform(
-    std::istream_iterator< Point >(in),
-    std::istream_iterator< Point >(),
-    std::back_inserter(tempPoints),
-    [](const Point& p) { return p; }
-  );
-  if (tempPoints.size() == numPoints) {
+  
+  std::vector<Point> tempPoints(numPoints);
+  // Читаем строго numPoints элементов без использования istream_iterator
+  std::generate_n(tempPoints.begin(), numPoints, [&in]() {
+    Point p;
+    if (!(in >> p)) {
+      in.setstate(std::ios::failbit);
+    }
+    return p;
+  });
+
+  if (in) {
     dest.points = std::move(tempPoints);
-    in.clear();
-  } else {
-    in.setstate(std::ios::failbit);
   }
   return in;
 }
 
 double getArea(const Polygon& poly) {
   if (poly.points.size() < 3) return 0.0;
-  auto indices = std::vector< size_t >(poly.points.size());
+  auto indices = std::vector<size_t>(poly.points.size());
   std::iota(indices.begin(), indices.end(), 0);
   double sum = std::accumulate(
     indices.begin(),
@@ -75,7 +75,7 @@ bool isPolygonEqual(const Polygon& a, const Polygon& b) {
   );
 }
 
-Frame getCollectionFrame(const std::vector< Polygon >& polygons) {
+Frame getCollectionFrame(const std::vector<Polygon>& polygons) {
   Frame f{{0, 0}, {0, 0}};
   if (polygons.empty()) return f;
   f.minPoint.x = polygons[0].points[0].x;

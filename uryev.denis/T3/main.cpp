@@ -9,7 +9,7 @@
 #include <iterator>
 #include "Polygon.hpp"
 
-void handleArea(const std::vector< Polygon >& polygons, std::istream& is) {
+void handleArea(const std::vector<Polygon>& polygons, std::istream& is) {
   std::string arg;
   is >> arg;
   double totalArea = 0.0;
@@ -55,7 +55,7 @@ void handleArea(const std::vector< Polygon >& polygons, std::istream& is) {
   std::cout << std::fixed << std::setprecision(1) << totalArea << "\n";
 }
 
-void handleMax(const std::vector< Polygon >& polygons, std::istream& is) {
+void handleMax(const std::vector<Polygon>& polygons, std::istream& is) {
   if (polygons.empty()) {
     std::cout << "<INVALID COMMAND>\n";
     return;
@@ -81,7 +81,7 @@ void handleMax(const std::vector< Polygon >& polygons, std::istream& is) {
   }
 }
 
-void handleMin(const std::vector< Polygon >& polygons, std::istream& is) {
+void handleMin(const std::vector<Polygon>& polygons, std::istream& is) {
   if (polygons.empty()) {
     std::cout << "<INVALID COMMAND>\n";
     return;
@@ -107,7 +107,7 @@ void handleMin(const std::vector< Polygon >& polygons, std::istream& is) {
   }
 }
 
-void handleCount(const std::vector< Polygon >& polygons, std::istream& is) {
+void handleCount(const std::vector<Polygon>& polygons, std::istream& is) {
   std::string arg;
   is >> arg;
   long long count = 0;
@@ -134,13 +134,13 @@ void handleCount(const std::vector< Polygon >& polygons, std::istream& is) {
   std::cout << count << "\n";
 }
 
-void handleEcho(std::vector< Polygon >& polygons, std::istream& is) {
+void handleEcho(std::vector<Polygon>& polygons, std::istream& is) {
   Polygon target;
   if (!(is >> target)) {
     std::cout << "<INVALID COMMAND>\n";
     return;
   }
-  std::vector< Polygon > updatedCollection;
+  std::vector<Polygon> updatedCollection;
   updatedCollection.reserve(polygons.size() * 2);
   size_t addedCount = 0;
   std::for_each(polygons.begin(), polygons.end(), [&](const Polygon& p) {
@@ -154,7 +154,7 @@ void handleEcho(std::vector< Polygon >& polygons, std::istream& is) {
   std::cout << addedCount << "\n";
 }
 
-void handleInFrame(const std::vector< Polygon >& polygons, std::istream& is) {
+void handleInFrame(const std::vector<Polygon>& polygons, std::istream& is) {
   Polygon target;
   if (!(is >> target) || polygons.empty()) {
     std::cout << "<INVALID COMMAND>\n";
@@ -178,7 +178,7 @@ int main(int argc, char* argv[]) {
     std::cerr << "Error: cannot open file.\n";
     return 1;
   }
-  std::vector< Polygon > polygons;
+  std::vector<Polygon> polygons;
   std::string line;
   while (std::getline(file, line)) {
     if (line.empty()) continue;

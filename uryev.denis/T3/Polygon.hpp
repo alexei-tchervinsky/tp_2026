@@ -10,7 +10,7 @@ struct Point {
 };
 
 struct Polygon {
-  std::vector< Point > points;
+  std::vector<Point> points;
 };
 
 std::istream& operator>>(std::istream& in, Point& dest);
@@ -25,7 +25,7 @@ struct Frame {
   Point maxPoint;
 };
 
-Frame getCollectionFrame(const std::vector< Polygon >& polygons);
+Frame getCollectionFrame(const std::vector<Polygon>& polygons);
 bool isPolygonInFrame(const Polygon& poly, const Frame& frame);
 
 #endif
