@@ -87,15 +87,15 @@ void handleMax(const std::vector<Polygon> &polygons, std::istream &is)
   if (arg == "AREA")
   {
     auto it = std::max_element(polygons.begin(),
-                              polygons.end(), [](const Polygon &a, const Polygon &b)
-                              { return getArea(a) < getArea(b); });
+                               polygons.end(), [](const Polygon &a, const Polygon &b)
+                               { return getArea(a) < getArea(b); });
     std::cout << std::fixed << std::setprecision(1) << getArea(*it) << "\n";
   }
   else if (arg == "VERTEXES")
   {
     auto it = std::max_element(polygons.begin(),
-                              polygons.end(), [](const Polygon &a, const Polygon &b)
-                              { return a.points.size() < b.points.size(); });
+                               polygons.end(), [](const Polygon &a, const Polygon &b)
+                               { return a.points.size() < b.points.size(); });
     std::cout << it->points.size() << "\n";
   }
   else
@@ -115,15 +115,15 @@ void handleMin(const std::vector<Polygon> &polygons, std::istream &is)
   if (arg == "AREA")
   {
     auto it = std::min_element(polygons.begin(),
-                              polygons.end(), [](const Polygon &a, const Polygon &b)
-                              { return getArea(a) < getArea(b); });
+                               polygons.end(), [](const Polygon &a, const Polygon &b)
+                               { return getArea(a) < getArea(b); });
     std::cout << std::fixed << std::setprecision(1) << getArea(*it) << "\n";
   }
   else if (arg == "VERTEXES")
   {
     auto it = std::min_element(polygons.begin(),
-                              polygons.end(), [](const Polygon &a, const Polygon &b)
-                              { return a.points.size() < b.points.size(); });
+                               polygons.end(), [](const Polygon &a, const Polygon &b)
+                               { return a.points.size() < b.points.size(); });
     std::cout << it->points.size() << "\n";
   }
   else
