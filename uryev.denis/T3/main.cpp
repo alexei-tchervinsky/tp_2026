@@ -152,13 +152,6 @@ void handleEcho(std::vector<Polygon>& polygons, std::istream& is) {
     std::cout << "<INVALID COMMAND>\n";
     return;
   }
-  
-  // Проверяем, что в потоке аргументов не осталось лишнего мусора
-  std::string extra;
-  if (is >> extra) {
-    std::cout << "<INVALID COMMAND>\n";
-    return;
-  }
 
   std::vector<Polygon> updatedCollection;
   updatedCollection.reserve(polygons.size() * 2);
@@ -183,13 +176,6 @@ void handleInFrame(const std::vector<Polygon>& polygons, std::istream& is) {
     return;
   }
 
-  std::string extra;
-  if (is >> extra) {
-    std::cout << "<INVALID COMMAND>\n";
-    return;
-  }
-
-  // Если коллекция пуста — вычислить рамку невозможно, это ошибка ввода
   if (polygons.empty()) {
     std::cout << "<INVALID COMMAND>\n";
     return;
