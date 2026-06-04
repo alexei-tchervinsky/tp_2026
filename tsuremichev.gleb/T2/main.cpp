@@ -10,7 +10,6 @@
 int main()
 {
   std::vector<DataStruct> data;
-
   std::ifstream infile("input.txt");
 
   if (!infile.is_open())
@@ -19,17 +18,18 @@ int main()
     return 1;
   }
 
-  while (!infile.eof())
+  std::string line;
+  while (std::getline(infile, line))
   {
-    std::copy(
-        std::istream_iterator<DataStruct>(infile),
-        std::istream_iterator<DataStruct>(),
-        std::back_inserter(data));
+    if (line.empty())
+      continue;
 
-    if (infile.fail() && !infile.eof())
+    std::stringstream ss(line);
+    DataStruct temp;
+
+    if (ss >> temp)
     {
-      infile.clear();
-      infile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+      data.push_back(temp);
     }
   }
 

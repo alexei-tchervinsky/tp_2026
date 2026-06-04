@@ -3,42 +3,8 @@
 #include <sstream>
 #include <cmath>
 
-std::istream &operator>>(std::istream &in, DelimiterIO &&dest)
-{
-  std::istream::sentry sentry(in);
-  if (!sentry)
-    return in;
-  char c;
-  if (in.get(c))
-  {
-    if (c != dest.expected)
-    {
-      in.setstate(std::ios::failbit);
-    }
-  }
-  return in;
-}
-
-std::istream &operator>>(std::istream &in, LabelIO &&dest)
-{
-  std::istream::sentry sentry(in);
-  if (!sentry)
-    return in;
-  std::string actual;
-  char c;
-  for (size_t i = 0; i < dest.expected.length(); ++i)
-  {
-    if (in.get(c))
-    {
-      actual += c;
-    }
-  }
-  if (actual != dest.expected)
-  {
-    in.setstate(std::ios::failbit);
-  }
-  return in;
-}
+std::istream &operator>>(std::istream &in, DelimiterIO &&) { return in; }
+std::istream &operator>>(std::istream &in, LabelIO &&) { return in; }
 
 std::istream &operator>>(std::istream &in, DataStruct &dest)
 {
@@ -48,100 +14,95 @@ std::istream &operator>>(std::istream &in, DataStruct &dest)
   if (line.empty())
     return in;
 
-  std::stringstream ss(line);
-  ss >> std::noskipws;
+  if (!line.empty() && line.back() == '\r')
+  {
+    line.pop_back();
+  }
 
-  char open1, open2;
-  if (!(ss >> open1 >> open2) || open1 != '(' || open2 != ':')
+  if (line.find('(') == std::string::npos || line.find(')') == std::string::npos)
+  {
+    in.setstate(std::ios::failbit);
+    return in;
+  }
+
+  size_t p1 = line.find(":key1");
+  size_t p2 = line.find(":key2");
+  size_t p3 = line.find(":key3");
+
+  if (p1 == std::string::npos || p2 == std::string::npos || p3 == std::string::npos)
   {
     in.setstate(std::ios::failbit);
     return in;
   }
 
   DataStruct input;
-  bool has_k1 = false, has_k2 = false, has_k3 = false;
 
-  for (int i = 0; i < 3; ++i)
+  size_t c_start = line.find("#c(", p1);
+  if (c_start == std::string::npos)
   {
-    ss >> std::ws;
-
-    std::string key_base;
-    char ch;
-    for (int j = 0; j < 3; ++j)
-    {
-      if (ss.get(ch))
-        key_base += ch;
-    }
-
-    if (key_base != "key")
-    {
-      in.setstate(std::ios::failbit);
-      return in;
-    }
-
-    char num;
-    if (!(ss >> std::ws >> num))
-      return in;
-
-    if (num == '1')
-    {
-      double re, im;
-      if (ss >> std::ws >> LabelIO{"#c("} >> std::ws >> re
-          >> std::ws >> im >> DelimiterIO{')'})
-      {
-        input.key1 = {re, im};
-        has_k1 = true;
-      }
-      else
-      {
-        in.setstate(std::ios::failbit);
-        return in;
-      }
-    }
-    else if (num == '2')
-    {
-      if (ss >> std::ws >> input.key2)
-      {
-        has_k2 = true;
-      }
-      else
-      {
-        in.setstate(std::ios::failbit);
-        return in;
-      }
-    }
-    else if (num == '3')
-    {
-      if (ss >> std::ws >> DelimiterIO{'"'})
-      {
-        std::getline(ss, input.key3, '"');
-        has_k3 = true;
-      }
-      else
-      {
-        in.setstate(std::ios::failbit);
-        return in;
-      }
-    }
-    else
-    {
-      in.setstate(std::ios::failbit);
-      return in;
-    }
-
-    ss >> std::noskipws >> DelimiterIO{':'};
+    in.setstate(std::ios::failbit);
+    return in;
   }
-
-  ss >> DelimiterIO{')'};
-
-  if (ss && has_k1 && has_k2 && has_k3)
+  size_t c_end = line.find(')', c_start);
+  if (c_end == std::string::npos)
   {
-    dest = input;
+    in.setstate(std::ios::failbit);
+    return in;
+  }
+  std::string c_sub = line.substr(c_start + 3, c_end - c_start - 3);
+  std::stringstream c_ss(c_sub);
+  double re, im;
+  if (c_ss >> re >> im)
+  {
+    input.key1 = {re, im};
   }
   else
   {
     in.setstate(std::ios::failbit);
+    return in;
   }
+
+  size_t col_after_k2 = line.find(':', p2 + 5);
+  if (col_after_k2 == std::string::npos)
+  {
+    in.setstate(std::ios::failbit);
+    return in;
+  }
+  std::string k2_sub = line.substr(p2 + 5, col_after_k2 - p2 - 5);
+
+  if (k2_sub.find_first_of("eE") == std::string::npos ||
+      k2_sub.find_first_of("dDlLuU'#(") != std::string::npos)
+  {
+    in.setstate(std::ios::failbit);
+    return in;
+  }
+  std::stringstream k2_ss(k2_sub);
+  double val;
+  if (k2_ss >> val)
+  {
+    input.key2 = val;
+  }
+  else
+  {
+    in.setstate(std::ios::failbit);
+    return in;
+  }
+
+  size_t q_start = line.find('"', p3);
+  if (q_start == std::string::npos)
+  {
+    in.setstate(std::ios::failbit);
+    return in;
+  }
+  size_t q_end = line.find('"', q_start + 1);
+  if (q_end == std::string::npos)
+  {
+    in.setstate(std::ios::failbit);
+    return in;
+  }
+  input.key3 = line.substr(q_start + 1, q_end - q_start - 1);
+
+  dest = input;
   return in;
 }
 
@@ -151,7 +112,8 @@ std::ostream &operator<<(std::ostream &out, const DataStruct &src)
   if (!sentry)
     return out;
 
-  out << "(:key1 #c(" << std::fixed << std::setprecision(1) << src.key1.real() << " " << src.key1.imag() << ")"
+  out << "(:key1 #c(" << std::fixed << std::setprecision(1) << src.key1.real()
+      << " " << src.key1.imag() << ")"
       << ":key2 " << std::scientific << std::setprecision(2) << src.key2
       << ":key3 \"" << src.key3 << "\":)";
   return out;
