@@ -24,10 +24,10 @@ int main()
     }
   }
 
-  // ИСПРАВЛЕНО: убрали лямбду, теперь сортировка идет строго по оператору < из data_struct.hpp
   std::sort(data.begin(), data.end());
 
-  std::copy(data.begin(), data.end(), std::ostream_iterator<DataStruct>(std::cout, "\n"));
+  std::copy(data.begin(), data.end(),
+            std::ostream_iterator<DataStruct>(std::cout, "\n"));
 
   return 0;
 }

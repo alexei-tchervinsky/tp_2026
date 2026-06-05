@@ -56,18 +56,17 @@ std::ostream &operator<<(std::ostream &out, const DataStruct &src)
 
   iofmtguard guard(out);
 
-  // Вывод комплексного числа в формате #c(real imag)
-  out << "(:key1 #c(" << std::fixed << std::setprecision(1) << src.key1.real() << " " << src.key1.imag() << ")";
+  out << "(:key1 #c(" << std::fixed << std::setprecision(1)
+      << src.key1.real() << " " << src.key1.imag() << ")";
 
-  // Вывод double в научном формате с экспонентой в нижнем регистре (например 5.45e-02)
-  out << ":key2 " << std::scientific << std::nouppercase << std::setprecision(1) << src.key2;
+  out << ":key2 " << std::scientific << std::nouppercase
+      << std::setprecision(1) << src.key2;
 
   out << ":key3 \"" << src.key3 << "\":)";
 
   return out;
 }
 
-// Оператор сравнения по ТЗ (для комплексных чисел сравниваем модули через std::abs)
 bool operator<(const DataStruct &lhs, const DataStruct &rhs)
 {
   if (std::abs(lhs.key1) != std::abs(rhs.key1))
