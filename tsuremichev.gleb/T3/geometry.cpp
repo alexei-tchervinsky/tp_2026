@@ -50,7 +50,7 @@ bool isPointInsidePolygon(Point p, const Polygon &poly)
                 {
         size_t i = &current - base;
         Point next = poly.points[(i + 1) % n];
-        
+
         if (((current.y > p.y) != (next.y > p.y)) &&
             (p.x < (next.x - current.x) * (p.y - current.y) / static_cast<double>(next.y - current.y) + current.x)) {
             inside = !inside;
@@ -84,8 +84,9 @@ bool isIntersectingPolygons(const Polygon &p1, const Polygon &p2)
                                            {
         size_t i = &a - base1;
         Point b = p1.points[(i + 1) % n1];
-        
-        return std::any_of(p2.points.begin(), p2.points.end(), [&](const Point& c) {
+
+        return std::any_of(p2.points.begin(), p2.points.end(), [&](const Point& c) 
+        {
             size_t j = &c - base2;
             Point d = p2.points[(j + 1) % n2];
             return isIntersectingSegments(a, b, c, d);
