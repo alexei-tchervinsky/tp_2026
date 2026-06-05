@@ -1,103 +1,116 @@
 #include "data_struct.h"
+#include <iomanip>
 #include <cctype>
-#include <string>
 
-std::istream& operator>>(std::istream& is, DataStruct& ds) {
-    char ch;
-    while (is.get(ch)) {
-        if (ch == '(') {
-            char next_ch;
-            if (is.get(next_ch)) {
-                if (next_ch == ':') {
-                    bool has_key1 = false, has_key2 = false, has_key3 = false;
-                    bool valid = true;
+std::istream& operator>>(std::istream& in, DataStruct& data) {
+    std::string line;
+    if (!std::getline(in, line)) return in;
 
-                    while (is.get(ch)) {
-                        if (std::isspace(static_cast<unsigned char>(ch))) continue;
+    size_t start = line.find_first_not_of(" \t");
+    size_t end = line.find_last_not_of(" \t");
+    if (start == std::string::npos || end == std::string::npos) {
+        in.setstate(std::ios::failbit);
+        return in;
+    }
+    line = line.substr(start, end - start + 1);
 
-                        if (ch == ':') {
-                            if (!is.get(ch)) { valid = false; break; }
-                            if (ch == ')') {
-                                break; // ����� �������� ������
-                            }
+    if (line.size() < 4 || line[0] != '(' || line[1] != ':' || line.back() != ':') {
+        in.setstate(std::ios::failbit);
+        return in;
+    }
 
-                            std::string key;
-                            while (is.get(ch) && ch != ' ' && ch != ':') {
-                                key += ch;
-                            }
-                            if (ch != ' ') { valid = false; break; }
+    line = line.substr(2, line.size() - 3);
 
-                            if (key == "key1") {
-                                if (!is.get(ch) || ch != '\'') { valid = false; break; }
-                                char val;
-                                if (!is.get(val)) { valid = false; break; }
-                                if (!is.get(ch) || ch != '\'') { valid = false; break; }
-                                if (!is.get(ch) || ch != ':') { valid = false; break; }
-                                ds.key1 = val;
-                                has_key1 = true;
-                            }
-                            else if (key == "key2") {
-                                std::string hex_str;
-                                while (is.get(ch) && ch != ':') {
-                                    hex_str += ch;
-                                }
-                                if (ch != ':') { valid = false; break; }
-                                try {
-                                    size_t pos;
-                                    ds.key2 = std::stoull(hex_str, &pos, 16);
-                                    if (pos != hex_str.length()) { valid = false; break; }
-                                }
-                                catch (...) {
-                                    valid = false; break;
-                                }
-                                has_key2 = true;
-                            }
-                            else if (key == "key3") {
-                                if (!is.get(ch) || ch != '"') { valid = false; break; }
-                                std::string val;
-                                while (is.get(ch) && ch != '"') {
-                                    val += ch;
-                                }
-                                if (ch != '"') { valid = false; break; }
-                                if (!is.get(ch) || ch != ':') { valid = false; break; }
-                                ds.key3 = val;
-                                has_key3 = true;
-                            }
-                            else {
-                                valid = false; break;
-                            }
-                        }
-                        else {
-                            valid = false; break;
-                        }
-                    }
+    bool hasKey1 = false, hasKey2 = false, hasKey3 = false;
+    char k1 = 0;
+    unsigned long long k2 = 0;
+    std::string k3;
 
+    size_t pos = 0;
+    while (pos < line.size()) {
+        if (line[pos] != ':') {
+            in.setstate(std::ios::failbit);
+            return in;
+        }
+        pos++;
+        size_t nextPos = line.find(':', pos);
+        if (nextPos == std::string::npos) {
+            in.setstate(std::ios::failbit);
+            return in;
+        }
+        std::string part = line.substr(pos, nextPos - pos);
+        pos = nextPos;
 
-                    if (valid && has_key1 && has_key2 && has_key3) {
-                        return is;
-                    }
+        size_t spacePos = part.find(' ');
+        if (spacePos == std::string::npos) {
+            in.setstate(std::ios::failbit);
+            return in;
+        }
+        std::string keyName = part.substr(0, spacePos);
+        std::string keyValue = part.substr(spacePos + 1);
 
-                }
+        if (keyName == "key1") {
+            if (keyValue.size() == 3 && keyValue[0] == '\'' && keyValue[2] == '\'') {
+                k1 = keyValue[1];
+                hasKey1 = true;
+            }
+            else {
+                in.setstate(std::ios::failbit);
+                return in;
             }
         }
+        else if (keyName == "key2") {
+            if (keyValue.size() > 2 && keyValue[0] == '0' && (keyValue[1] == 'x' || keyValue[1] == 'X')) {
+                k2 = 0;
+                for (size_t i = 2; i < keyValue.size(); ++i) {
+                    char c = keyValue[i];
+                    if (c >= '0' && c <= '9') k2 = k2 * 16 + (c - '0');
+                    else if (c >= 'A' && c <= 'F') k2 = k2 * 16 + (c - 'A' + 10);
+                    else if (c >= 'a' && c <= 'f') k2 = k2 * 16 + (c - 'a' + 10);
+                    else { in.setstate(std::ios::failbit); return in; }
+                }
+                hasKey2 = true;
+            }
+            else {
+                in.setstate(std::ios::failbit);
+                return in;
+            }
+        }
+        else if (keyName == "key3") {
+            if (keyValue.size() >= 2 && keyValue[0] == '"' && keyValue[keyValue.size() - 1] == '"') {
+                k3 = keyValue.substr(1, keyValue.size() - 2);
+                hasKey3 = true;
+            }
+            else {
+                in.setstate(std::ios::failbit);
+                return in;
+            }
+        }
+        else {
+            in.setstate(std::ios::failbit);
+            return in;
+        }
     }
-    is.setstate(std::ios::eofbit);
-    return is;
+
+    if (!hasKey1 || !hasKey2 || !hasKey3) {
+        in.setstate(std::ios::failbit);
+        return in;
+    }
+
+    data.key1 = k1;
+    data.key2 = k2;
+    data.key3 = k3;
+    return in;
 }
 
-std::ostream& operator<<(std::ostream& os, const DataStruct& ds) {
-    os << "(:key1 '" << ds.key1 << "':key2 0x"
-        << std::hex << std::uppercase << ds.key2 << std::nouppercase << std::dec
-        << ":key3 \"" << ds.key3 << "\":)";
-    return os;
+std::ostream& operator<<(std::ostream& out, const DataStruct& data) {
+    out << "(:key1 '" << data.key1 << "':key2 0x" << std::hex << std::uppercase
+        << data.key2 << std::dec << std::nouppercase << ":key3 \"" << data.key3 << "\":)";
+    return out;
 }
 
-bool compareDataStruct(const DataStruct& a, const DataStruct& b) {
-    if (a.key1 != b.key1) {
-        return a.key1 < b.key1;
-    }
-    if (a.key2 != b.key2) {
-        return a.key2 < b.key2;
-    }
-    return a.key3.length() < b.key3.length();
+bool comparator(const DataStruct& a, const DataStruct& b) {
+    if (a.key1 != b.key1) return a.key1 < b.key1;
+    if (a.key2 != b.key2) return a.key2 < b.key2;
+    return a.key3.size() < b.key3.size();
 }
