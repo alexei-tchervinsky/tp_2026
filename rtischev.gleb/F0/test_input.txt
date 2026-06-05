@@ -1,0 +1,115 @@
+1 apple яблоко
+1 banana банан
+1 cat кошка
+1 dog собака
+1 elephant слон
+1 fox лиса
+1 grape виноград
+1 house дом
+1 ice лед
+1 jacket куртка
+1 key ключ
+1 lemon лимон
+1 mouse мышь
+1 notebook блокнот
+1 orange апельсин
+1 pen ручка
+1 queen королева
+1 rabbit кролик
+1 sun солнце
+1 tree дерево
+1 umbrella зонт
+1 violin скрипка
+1 water вода
+1 xylophone ксилофон
+1 yellow желтый
+1 zebra зебра
+1 book книга
+1 chair стул
+1 desk письменный_стол
+1 door дверь
+1 apple ранетка
+1 apple яблоня
+1 house здание
+1 house жилище
+1 book книжка
+1 water водичка
+1 sun солнышко
+2 apple
+2 banana
+2 cat
+2 dog
+2 elephant
+2 fox
+2 grape
+2 house
+2 unknown_word
+2 counterfeit_key
+5
+4
+3 cat
+3 dog
+3 elephant
+3 fox
+3 house
+3 key
+2 cat
+2 dog
+2 elephant
+2 fox
+2 house
+2 key
+1 window окно
+1 floor пол
+1 wall стена
+1 roof крыша
+1 car машина
+1 bus автобус
+1 train поезд
+1 plane самолет
+1 bicycle велосипед
+1 ship корабль
+1 river река
+1 sea море
+1 ocean океан
+1 lake озеро
+1 mountain гора
+1 hill холм
+1 valley долина
+1 forest лес
+1 bread хлеб
+1 milk молоко
+1 cheese сыр
+1 butter масло
+1 meat мясо
+1 fish рыба
+1 rice рис
+1 sugar сахар
+1 salt соль
+1 pepper перец
+1 onion лук
+1 garlic чеснок
+1 potato картофель
+1 carrot морковь
+1 cucumber огурец
+1 tomato помидор
+1 tea чай
+1 coffee кофе
+1 juice сок
+1 beer пиво
+1 wine вино
+1 cake торт
+1 cookie печенье
+1 candy конфета
+1 soup суп
+1 salad салат
+1 honey мед
+1 jam варенье
+1 nut орех
+1 egg яйцо
+2 pen
+2 apple
+2 yellow
+5
+4
+0
