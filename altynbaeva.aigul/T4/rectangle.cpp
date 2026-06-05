@@ -1,4 +1,4 @@
-﻿#include "rectangle.h"
+#include "rectangle.h"
 
 Rectangle::Rectangle(Point bottomLeft, Point topRight) : bl(bottomLeft), tr(topRight) {}
 
@@ -28,3 +28,4 @@ void Rectangle::scale(double factor) {
 std::string Rectangle::getName() const {
     return "RECTANGLE";
 }
+

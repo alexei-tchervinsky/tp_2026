@@ -28,3 +28,4 @@ void Circle::scale(double factor) {
 std::string Circle::getName() const {
     return "CIRCLE";
 }
+
