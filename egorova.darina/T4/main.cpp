@@ -16,7 +16,7 @@ int main() {
   std::vector<Shape *> shapes;
 
   try {
-    // Тест 1: Квадрат
+    // Тест 1 Квадрат
     Shape *square = new Square(Point(1, 1), 2);
     shapes.push_back(square);
     std::cout << "=== Test 1: Square ===" << std::endl;
@@ -71,6 +71,6 @@ int main() {
   for (auto shape : shapes) {
     delete shape;
   }
-  
+
   return 0;
 }
