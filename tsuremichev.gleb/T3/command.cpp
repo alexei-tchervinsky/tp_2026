@@ -69,10 +69,14 @@ void processCommands(std::vector<Polygon> &shapes)
       }
       else if (sub == "EVEN" || sub == "ODD")
       {
-        VertexCountFilter filter(sub == "EVEN" ? VertexCountFilter::EVEN : VertexCountFilter::ODD);
+        VertexCountFilter filter(sub ==
+        "EVEN" ? VertexCountFilter::EVEN : VertexCountFilter::ODD);
         double total_area = std::accumulate(shapes.begin(), shapes.end(), 0.0,
-                                            [&filter](double sum, const Polygon &p)
-                                            { return sum + (filter(p) ? getArea(p) : 0.0); });
+                                [&filter](double sum, const Polygon &p)
+                                {
+                                  return sum + (filter(p) ? getArea(p) : 0.0);
+
+                                });
         std::cout << total_area << "\n";
       }
       else
@@ -81,9 +85,18 @@ void processCommands(std::vector<Polygon> &shapes)
         {
           size_t num = std::stoull(sub);
           VertexCountFilter filter(VertexCountFilter::EXACT, num);
+          if (num < 3)
+          {
+            std::cout << "<INVALID COMMAND>\n";
+          }
+          else
+          {
+            std::cout << std::count_if(shapes.begin(),
+                                       shapes.end(), filter) << "\n";
+          }
           double total_area = std::accumulate(shapes.begin(), shapes.end(), 0.0,
-                                              [&filter](double sum, const Polygon &p)
-                                              { return sum + (filter(p) ? getArea(p) : 0.0); });
+                              [&filter](double sum, const Polygon &p)
+                              { return sum + (filter(p) ? getArea(p) : 0.0); });
           std::cout << total_area << "\n";
         }
         catch (...)
@@ -106,17 +119,19 @@ void processCommands(std::vector<Polygon> &shapes)
         auto it = std::max_element(shapes.begin(), shapes.end(),
                                    [cmd](const Polygon &a, const Polygon &b)
                                    {
-                                     return cmd == "MAX" ? (getArea(a) < getArea(b)) : (getArea(a) > getArea(b));
+                                     return cmd == "MAX" ? (getArea(a) <
+                                     getArea(b)) : (getArea(a) > getArea(b));
                                    });
         std::cout << getArea(*it) << "\n";
       }
       else if (sub == "VERTEXES")
       {
         auto it = std::max_element(shapes.begin(), shapes.end(),
-                                   [cmd](const Polygon &a, const Polygon &b)
-                                   {
-                                     return cmd == "MAX" ? (a.points.size() < b.points.size()) : (a.points.size() > b.points.size());
-                                   });
+              [cmd](const Polygon &a, const Polygon &b)
+              {
+                return cmd == "MAX" ? (a.points.size() <
+                b.points.size()) : (a.points.size() > b.points.size());
+              });
         std::cout << it->points.size() << "\n";
       }
       else
@@ -135,8 +150,10 @@ void processCommands(std::vector<Polygon> &shapes)
 
       if (sub == "EVEN" || sub == "ODD")
       {
-        VertexCountFilter filter(sub == "EVEN" ? VertexCountFilter::EVEN : VertexCountFilter::ODD);
-        std::cout << std::count_if(shapes.begin(), shapes.end(), filter) << "\n";
+        VertexCountFilter filter(sub == "EVEN" ?
+        VertexCountFilter::EVEN : VertexCountFilter::ODD);
+        std::cout << std::count_if(shapes.begin(), shapes.end(), filter) <<
+        "\n";
       }
       else
       {
@@ -144,7 +161,15 @@ void processCommands(std::vector<Polygon> &shapes)
         {
           size_t num = std::stoull(sub);
           VertexCountFilter filter(VertexCountFilter::EXACT, num);
-          std::cout << std::count_if(shapes.begin(), shapes.end(), filter) << "\n";
+          if (num < 3)
+          {
+            std::cout << "<INVALID COMMAND>\n";
+          }
+          else
+          {
+            std::cout << std::count_if(shapes.begin(), shapes.end(),
+                                       filter) << "\n";
+          }
         }
         catch (...)
         {
@@ -173,17 +198,18 @@ void processCommands(std::vector<Polygon> &shapes)
     else if (cmd == "INTERSECTIONS")
     {
       Polygon target;
-      if (!(ss >> target))
+      std::string trailing;
+      if (!(ss >> target) || (ss >> trailing))
       {
         std::cout << "<INVALID COMMAND>\n";
         continue;
       }
 
       long long count = std::count_if(shapes.begin(), shapes.end(),
-                                      [&target](const Polygon &poly)
-                                      {
-                                        return isIntersectingPolygons(poly, target);
-                                      });
+                              [&target](const Polygon &poly)
+                              {
+                                return isIntersectingPolygons(poly, target);
+                              });
       std::cout << count << "\n";
     }
     else
