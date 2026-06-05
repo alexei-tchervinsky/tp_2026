@@ -2,6 +2,7 @@
 #include <numeric>
 #include <cmath>
 #include <algorithm>
+#include <functional> // Явное использование заголовочного файла
 
 double getArea(const Polygon &poly)
 {
@@ -49,7 +50,7 @@ bool isPointInsidePolygon(Point p, const Polygon &poly)
                 {
         size_t i = &current - base;
         Point next = poly.points[(i + 1) % n];
-
+        
         if (((current.y > p.y) != (next.y > p.y)) &&
             (p.x < (next.x - current.x) * (p.y - current.y) / static_cast<double>(next.y - current.y) + current.x)) {
             inside = !inside;
@@ -60,17 +61,20 @@ bool isPointInsidePolygon(Point p, const Polygon &poly)
 
 bool isIntersectingPolygons(const Polygon &p1, const Polygon &p2)
 {
-  if (p1 == p2)
+  // Использование std::equal_to из <functional> для проверки полной идентичности структур
+  std::equal_to<Polygon> poly_eq;
+  if (poly_eq(p1, p2))
     return true;
 
-  // 1. Check for shared vertices
+  // 1. Проверка общих вершин через std::equal_to для точек
+  std::equal_to<Point> pt_eq;
   bool shares_vertices = std::any_of(p1.points.begin(), p1.points.end(), [&](const Point &pt1)
                                      { return std::any_of(p2.points.begin(), p2.points.end(), [&](const Point &pt2)
-                                                          { return pt1.x == pt2.x && pt1.y == pt2.y; }); });
+                                                          { return pt_eq(pt1, pt2); }); });
   if (shares_vertices)
     return true;
 
-  // 2. Check for intersecting segment boundaries
+  // 2. Проверка пересечения границ
   size_t n1 = p1.points.size();
   size_t n2 = p2.points.size();
   const Point *base1 = p1.points.data();
@@ -80,7 +84,7 @@ bool isIntersectingPolygons(const Polygon &p1, const Polygon &p2)
                                            {
         size_t i = &a - base1;
         Point b = p1.points[(i + 1) % n1];
-
+        
         return std::any_of(p2.points.begin(), p2.points.end(), [&](const Point& c) {
             size_t j = &c - base2;
             Point d = p2.points[(j + 1) % n2];
@@ -90,7 +94,7 @@ bool isIntersectingPolygons(const Polygon &p1, const Polygon &p2)
   if (boundary_intersection)
     return true;
 
-  // 3. Check for structural nesting (inside / enclosure)
+  // 3. Проверка вложенности
   if (!p1.points.empty() && isPointInsidePolygon(p1.points[0], p2))
     return true;
   if (!p2.points.empty() && isPointInsidePolygon(p2.points[0], p1))

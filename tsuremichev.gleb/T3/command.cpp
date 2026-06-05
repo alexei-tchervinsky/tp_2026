@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <numeric>
 #include <iomanip>
+#include <functional>
+#include <map> // Обязательное использование заголовочного файла
 
 struct VertexCountFilter
 {
@@ -28,11 +30,23 @@ struct VertexCountFilter
   }
 };
 
+double addArea(double sum, const Polygon &p)
+{
+  return sum + getArea(p);
+}
+
 void processCommands(std::vector<Polygon> &shapes)
 {
   std::string line;
   iofmtguard guard(std::cout);
   std::cout << std::fixed << std::setprecision(1);
+
+  using namespace std::placeholders;
+
+  // Карта (std::map) для связи строковых подкоманд с типами фильтров вершин
+  const std::map<std::string, VertexCountFilter::Type> filter_map = {
+      {"EVEN", VertexCountFilter::EVEN},
+      {"ODD", VertexCountFilter::ODD}};
 
   while (std::getline(std::cin, line))
   {
@@ -63,13 +77,13 @@ void processCommands(std::vector<Polygon> &shapes)
           continue;
         }
         double total_area = std::accumulate(shapes.begin(), shapes.end(), 0.0,
-                                            [](double sum, const Polygon &p)
-                                            { return sum + getArea(p); });
+                                            std::bind(addArea, _1, _2));
         std::cout << total_area / shapes.size() << "\n";
       }
-      else if (sub == "EVEN" || sub == "ODD")
+      // Поиск подкоманды EVEN/ODD внутри std::map
+      else if (filter_map.count(sub))
       {
-        VertexCountFilter filter(sub == "EVEN" ? VertexCountFilter::EVEN : VertexCountFilter::ODD);
+        VertexCountFilter filter(filter_map.at(sub));
         double total_area = std::accumulate(shapes.begin(), shapes.end(), 0.0,
                                             [&filter](double sum, const Polygon &p)
                                             { return sum + (filter(p) ? getArea(p) : 0.0); });
@@ -138,9 +152,10 @@ void processCommands(std::vector<Polygon> &shapes)
         continue;
       }
 
-      if (sub == "EVEN" || sub == "ODD")
+      // Поиск подкоманды EVEN/ODD внутри std::map
+      if (filter_map.count(sub))
       {
-        VertexCountFilter filter(sub == "EVEN" ? VertexCountFilter::EVEN : VertexCountFilter::ODD);
+        VertexCountFilter filter(filter_map.at(sub));
         std::cout << std::count_if(shapes.begin(), shapes.end(), filter) << "\n";
       }
       else
@@ -178,7 +193,8 @@ void processCommands(std::vector<Polygon> &shapes)
       auto it = std::unique(shapes.begin(), shapes.end(),
                             [&target](const Polygon &a, const Polygon &b)
                             {
-                              return (a == target && b == target);
+                              std::equal_to<Polygon> eq;
+                              return eq(a, target) && eq(b, target);
                             });
       shapes.erase(it, shapes.end());
       std::cout << (old_size - shapes.size()) << "\n";
