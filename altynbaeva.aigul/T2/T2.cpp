@@ -1,15 +1,30 @@
-﻿#include "data_struct.h"
-#include <iostream>
+﻿#include <iostream>
 #include <vector>
 #include <algorithm>
 #include <sstream>
 #include <string>
 #include <complex>
 #include <cmath>
+#include <iomanip>
+
+struct DataStruct {
+    enum Type { NONE, DOUBLE, LONG_LONG, UNSIGNED_LONG_LONG, CHAR, COMPLEX, RATIONAL };
+    Type type1, type2;
+
+    double double1, double2;
+    long long ll1, ll2;
+    unsigned long long ull1, ull2;
+    char char1, char2;
+    std::complex<double> complex1, complex2;
+    std::pair<long long, unsigned long long> rational1, rational2;
+
+    std::string key3;
+
+    DataStruct() : type1(NONE), type2(NONE), double1(0), double2(0), ll1(0), ll2(0), ull1(0), ull2(0), char1(0), char2(0) {}
+};
 
 bool parseDouble(const std::string& s, double& value) {
     std::string str = s;
-    // Убираем суффиксы d/D/e/E
     if (!str.empty() && (str.back() == 'd' || str.back() == 'D')) str.pop_back();
     size_t pos = 0;
     try {
@@ -21,7 +36,6 @@ bool parseDouble(const std::string& s, double& value) {
 bool parseLongLong(const std::string& s, long long& value) {
     if (s.empty()) return false;
     std::string str = s;
-    // Убираем суффикс LL/ll
     if (str.size() >= 2 && (str.substr(str.size()-2) == "LL" || str.substr(str.size()-2) == "ll")) {
         str = str.substr(0, str.size()-2);
     }
@@ -35,20 +49,17 @@ bool parseLongLong(const std::string& s, long long& value) {
 bool parseUnsignedLongLong(const std::string& s, unsigned long long& value) {
     if (s.empty()) return false;
     std::string str = s;
-    // Убираем суффикс ULL/ull/u11
     if (str.size() >= 3 && (str.substr(str.size()-3) == "ULL" || str.substr(str.size()-3) == "ull")) {
         str = str.substr(0, str.size()-3);
     } else if (str.size() >= 1 && (str.back() == 'u' || str.back() == 'U')) {
         str.pop_back();
     }
-    // Восьмеричное
     if (str.size() > 1 && str[0] == '0' && str[1] != 'x' && str[1] != 'X' && str[1] != 'b' && str[1] != 'B') {
         try {
             value = std::stoull(str, nullptr, 8);
             return true;
         } catch (...) { return false; }
     }
-    // Двоичное
     if (str.size() > 2 && str[0] == '0' && (str[1] == 'b' || str[1] == 'B')) {
         value = 0;
         for (size_t i = 2; i < str.size(); ++i) {
@@ -59,14 +70,12 @@ bool parseUnsignedLongLong(const std::string& s, unsigned long long& value) {
         }
         return true;
     }
-    // Шестнадцатеричное
     if (str.size() > 2 && str[0] == '0' && (str[1] == 'x' || str[1] == 'X')) {
         try {
             value = std::stoull(str, nullptr, 16);
             return true;
         } catch (...) { return false; }
     }
-    // Десятичное
     try {
         value = std::stoull(str);
         return true;
@@ -105,4 +114,118 @@ bool parseRational(const std::string& s, std::pair<long long, unsigned long long
     if (!parseUnsignedLongLong(denStr, den)) return false;
     value = {num, den};
     return true;
+}
+
+std::ostream& operator<<(std::ostream& out, const DataStruct& d) {
+    out << "(:key1 ";
+    switch(d.type1) {
+        case DataStruct::DOUBLE: out << std::fixed << std::setprecision(1) << d.double1 << "d"; break;
+        case DataStruct::LONG_LONG: out << d.ll1 << "ll"; break;
+        case DataStruct::UNSIGNED_LONG_LONG: 
+            if (d.ull1 <= 9) out << d.ull1;
+            else out << "0x" << std::hex << std::uppercase << d.ull1 << std::dec;
+            break;
+        case DataStruct::CHAR: out << "'" << d.char1 << "'"; break;
+        case DataStruct::COMPLEX: out << "#c(" << d.complex1.real() << " " << d.complex1.imag() << ")"; break;
+        case DataStruct::RATIONAL: out << "(:N" << d.rational1.first << ":D" << d.rational1.second << ":)"; break;
+        default: break;
+    }
+    out << ":key2 ";
+    switch(d.type2) {
+        case DataStruct::DOUBLE: out << std::fixed << std::setprecision(1) << d.double2 << "d"; break;
+        case DataStruct::LONG_LONG: out << d.ll2 << "ll"; break;
+        case DataStruct::UNSIGNED_LONG_LONG: 
+            if (d.ull2 <= 9) out << d.ull2;
+            else out << "0x" << std::hex << std::uppercase << d.ull2 << std::dec;
+            break;
+        case DataStruct::CHAR: out << "'" << d.char2 << "'"; break;
+        case DataStruct::COMPLEX: out << "#c(" << d.complex2.real() << " " << d.complex2.imag() << ")"; break;
+        case DataStruct::RATIONAL: out << "(:N" << d.rational2.first << ":D" << d.rational2.second << ":)"; break;
+        default: break;
+    }
+    out << ":key3 \"" << d.key3 << "\":)";
+    return out;
+}
+
+bool comparator(const DataStruct& a, const DataStruct& b) {
+    if (a.type1 != b.type1) return a.type1 < b.type1;
+    switch(a.type1) {
+        case DataStruct::DOUBLE: return a.double1 < b.double1;
+        case DataStruct::LONG_LONG: return a.ll1 < b.ll1;
+        case DataStruct::UNSIGNED_LONG_LONG: return a.ull1 < b.ull1;
+        case DataStruct::CHAR: return a.char1 < b.char1;
+        case DataStruct::COMPLEX: return std::abs(a.complex1) < std::abs(b.complex1);
+        case DataStruct::RATIONAL: {
+            double av = (double)a.rational1.first / a.rational1.second;
+            double bv = (double)b.rational1.first / b.rational1.second;
+            return av < bv;
+        }
+        default: return false;
+    }
+}
+
+int main() {
+    std::vector<DataStruct> data;
+    std::string line;
+
+    while (std::getline(std::cin, line)) {
+        if (line.empty()) break;
+
+        DataStruct d;
+        size_t pos = 0;
+        bool hasKey1 = false, hasKey2 = false, hasKey3 = false;
+
+        if (line.size() < 4 || line[0] != '(' || line[1] != ':' || line.back() != ':') continue;
+        line = line.substr(2, line.size() - 3);
+
+        pos = 0;
+        while (pos < line.size()) {
+            if (line[pos] != ':') break;
+            pos++;
+            size_t nextPos = line.find(':', pos);
+            if (nextPos == std::string::npos) break;
+            std::string part = line.substr(pos, nextPos - pos);
+            pos = nextPos;
+
+            size_t spacePos = part.find(' ');
+            if (spacePos == std::string::npos) continue;
+            std::string keyName = part.substr(0, spacePos);
+            std::string keyValue = part.substr(spacePos + 1);
+
+            if (keyName == "key1") {
+                if (parseChar(keyValue, d.char1)) { d.type1 = DataStruct::CHAR; hasKey1 = true; }
+                else if (parseDouble(keyValue, d.double1)) { d.type1 = DataStruct::DOUBLE; hasKey1 = true; }
+                else if (parseLongLong(keyValue, d.ll1)) { d.type1 = DataStruct::LONG_LONG; hasKey1 = true; }
+                else if (parseUnsignedLongLong(keyValue, d.ull1)) { d.type1 = DataStruct::UNSIGNED_LONG_LONG; hasKey1 = true; }
+                else if (parseComplex(keyValue, d.complex1)) { d.type1 = DataStruct::COMPLEX; hasKey1 = true; }
+                else if (parseRational(keyValue, d.rational1)) { d.type1 = DataStruct::RATIONAL; hasKey1 = true; }
+            }
+            else if (keyName == "key2") {
+                if (parseChar(keyValue, d.char2)) { d.type2 = DataStruct::CHAR; hasKey2 = true; }
+                else if (parseDouble(keyValue, d.double2)) { d.type2 = DataStruct::DOUBLE; hasKey2 = true; }
+                else if (parseLongLong(keyValue, d.ll2)) { d.type2 = DataStruct::LONG_LONG; hasKey2 = true; }
+                else if (parseUnsignedLongLong(keyValue, d.ull2)) { d.type2 = DataStruct::UNSIGNED_LONG_LONG; hasKey2 = true; }
+                else if (parseComplex(keyValue, d.complex2)) { d.type2 = DataStruct::COMPLEX; hasKey2 = true; }
+                else if (parseRational(keyValue, d.rational2)) { d.type2 = DataStruct::RATIONAL; hasKey2 = true; }
+            }
+            else if (keyName == "key3") {
+                if (keyValue.size() >= 2 && keyValue[0] == '"' && keyValue.back() == '"') {
+                    d.key3 = keyValue.substr(1, keyValue.size() - 2);
+                    hasKey3 = true;
+                }
+            }
+        }
+
+        if (hasKey1 && hasKey2 && hasKey3) {
+            data.push_back(d);
+        }
+    }
+
+    std::sort(data.begin(), data.end(), comparator);
+
+    for (const auto& d : data) {
+        std::cout << d << "\n";
+    }
+
+    return 0;
 }
