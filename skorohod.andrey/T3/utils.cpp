@@ -157,7 +157,7 @@ void cmdArea(const std::vector<Polygon>& data, std::istream& is, std::ostream& o
         os << areaMean(data) << '\n';
     } else if (isUnsignedNumber(param)) {
         std::size_t num = std::stoul(param);
-        std::size_t area = areaNum(data, num);
+        double area = areaNum(data, num);
         if (area == 0) os << "<INVALID COMMAND>\n";
         else
         {
