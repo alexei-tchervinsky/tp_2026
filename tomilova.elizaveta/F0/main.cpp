@@ -44,7 +44,9 @@ void printTopThree(const std::unordered_map<std::string, size_t>& ht) {
     }
     std::vector<WordFreq> frequencies;
     frequencies.reserve(ht.size());
-    for (const auto& [word, count] : ht) {
+    for (const auto& pair : ht) {
+        const auto& word = pair.first;
+        const auto& count = pair.second;
         frequencies.push_back({word, count});
     }
     std::sort(frequencies.begin(), frequencies.end(), [](const WordFreq& a, const WordFreq& b) {
@@ -63,7 +65,9 @@ void printAll(const std::unordered_map<std::string, size_t>& ht) {
         std::cout << "Hash table is empty \n";
         return;
     }
-    for (const auto& [word, count] : ht) {
+    for (const auto& pair : ht) {
+        const auto& word = pair.first;
+        const auto& count = pair.second;
         std::cout << word << " -> " << count << "\n";
     }
 }
