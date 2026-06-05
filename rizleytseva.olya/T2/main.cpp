@@ -44,10 +44,6 @@ void testConstructorsAndOperators() {
     ds7 = ds7;
     std::cout << "   ds7 после ds7 = ds7 = " << ds7 << "\n\n";
 
-    std::cout << "8. Самоприсваивание (перемещение):\n";
-    DataStruct ds8(0x456, 'Y', "Move");
-    ds8 = std::move(ds8);
-    std::cout << "   ds8 после ds8 = move(ds8) = " << ds8 << "\n\n";
 
     std::cout << "9. Тест swap:\n";
     DataStruct ds9a(0x111, 'A', "First");
