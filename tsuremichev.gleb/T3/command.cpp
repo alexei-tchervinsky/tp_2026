@@ -6,7 +6,7 @@
 #include <numeric>
 #include <iomanip>
 #include <functional>
-#include <map> // Обязательное использование заголовочного файла
+#include <map>
 
 struct VertexCountFilter
 {
@@ -43,7 +43,6 @@ void processCommands(std::vector<Polygon> &shapes)
 
   using namespace std::placeholders;
 
-  // Карта (std::map) для связи строковых подкоманд с типами фильтров вершин
   const std::map<std::string, VertexCountFilter::Type> filter_map = {
       {"EVEN", VertexCountFilter::EVEN},
       {"ODD", VertexCountFilter::ODD}};
@@ -80,7 +79,6 @@ void processCommands(std::vector<Polygon> &shapes)
                                             std::bind(addArea, _1, _2));
         std::cout << total_area / shapes.size() << "\n";
       }
-      // Поиск подкоманды EVEN/ODD внутри std::map
       else if (filter_map.count(sub))
       {
         VertexCountFilter filter(filter_map.at(sub));
@@ -152,7 +150,6 @@ void processCommands(std::vector<Polygon> &shapes)
         continue;
       }
 
-      // Поиск подкоманды EVEN/ODD внутри std::map
       if (filter_map.count(sub))
       {
         VertexCountFilter filter(filter_map.at(sub));

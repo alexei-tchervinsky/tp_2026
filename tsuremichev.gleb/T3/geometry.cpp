@@ -61,12 +61,10 @@ bool isPointInsidePolygon(Point p, const Polygon &poly)
 
 bool isIntersectingPolygons(const Polygon &p1, const Polygon &p2)
 {
-  // Использование std::equal_to из <functional> для проверки полной идентичности структур
   std::equal_to<Polygon> poly_eq;
   if (poly_eq(p1, p2))
     return true;
 
-  // 1. Проверка общих вершин через std::equal_to для точек
   std::equal_to<Point> pt_eq;
   bool shares_vertices = std::any_of(p1.points.begin(), p1.points.end(), [&](const Point &pt1)
                                      { return std::any_of(p2.points.begin(), p2.points.end(), [&](const Point &pt2)
@@ -74,7 +72,6 @@ bool isIntersectingPolygons(const Polygon &p1, const Polygon &p2)
   if (shares_vertices)
     return true;
 
-  // 2. Проверка пересечения границ
   size_t n1 = p1.points.size();
   size_t n2 = p2.points.size();
   const Point *base1 = p1.points.data();
@@ -95,7 +92,6 @@ bool isIntersectingPolygons(const Polygon &p1, const Polygon &p2)
   if (boundary_intersection)
     return true;
 
-  // 3. Проверка вложенности
   if (!p1.points.empty() && isPointInsidePolygon(p1.points[0], p2))
     return true;
   if (!p2.points.empty() && isPointInsidePolygon(p2.points[0], p1))
