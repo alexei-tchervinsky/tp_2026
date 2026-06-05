@@ -1,4 +1,5 @@
 #include "Polygon.hpp"
+#include <limits>
 #include <numeric>
 #include <algorithm>
 #include <cmath>
