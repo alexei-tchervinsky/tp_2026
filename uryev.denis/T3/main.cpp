@@ -174,12 +174,14 @@ void handleCount(const std::vector<Polygon> &polygons, std::istream &is)
 void handleEcho(std::vector<Polygon> &polygons, std::istream &is)
 {
   Polygon target;
-  if (!(is >> target)) {
+  if (!(is >> target))
+  {
     std::cout << "<INVALID COMMAND>\n";
     is.clear();
     is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     return;
   }
+
 
   std::vector<Polygon> updatedCollection;
   updatedCollection.reserve(polygons.size() * 2);
@@ -199,12 +201,14 @@ void handleEcho(std::vector<Polygon> &polygons, std::istream &is)
 void handleInFrame(const std::vector<Polygon> &polygons, std::istream &is)
 {
   Polygon target;
-  if (!(is >> target) || polygons.empty()) {
+  if (!(is >> target) || polygons.empty())
+  {
     std::cout << "<INVALID COMMAND>\n";
     is.clear();
     is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     return;
   }
+
 
 
   Frame currentFrame = getCollectionFrame(polygons);
