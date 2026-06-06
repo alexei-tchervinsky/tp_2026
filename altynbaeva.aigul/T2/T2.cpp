@@ -1,10 +1,59 @@
-﻿#include "data_struct.cpp"
+﻿#include "data_struct.h"
 #include <iostream>
 #include <vector>
 #include <algorithm>
 #include <sstream>
 #include <string>
 #include <iomanip>
+#include <cctype>
+
+char parseKey1(const std::string& s) {
+    if (s.size() == 3 && s[0] == '\'' && s[2] == '\'') {
+        return s[1];
+    }
+
+    if (s.find('.') != std::string::npos || s.find('e') != std::string::npos || s.find('E') != std::string::npos) {
+        try {
+            double d = std::stod(s);
+            return static_cast<char>(d);
+        } catch(...) {}
+    }
+
+    try {
+        long long ll = std::stoll(s);
+        return static_cast<char>(ll);
+    } catch(...) {}
+
+    return 0;
+}
+
+unsigned long long parseKey2(const std::string& s) {
+    unsigned long long result = 0;
+    std::string str = s;
+
+    if (str.size() >= 3 && (str.substr(str.size()-3) == "ULL" || str.substr(str.size()-3) == "ull")) {
+        str = str.substr(0, str.size()-3);
+    } else if (str.size() >= 1 && (str.back() == 'u' || str.back() == 'U')) {
+        str.pop_back();
+    }
+
+    if (str.size() > 2 && str[0] == '0' && (str[1] == 'x' || str[1] == 'X')) {
+        result = std::stoull(str.substr(2), nullptr, 16);
+    }
+    else if (str.size() > 2 && str[0] == '0' && (str[1] == 'b' || str[1] == 'B')) {
+        result = std::stoull(str.substr(2), nullptr, 2);
+    }
+    else if (str.size() > 1 && str[0] == '0' && (str[1] >= '0' && str[1] <= '7')) {
+        result = std::stoull(str, nullptr, 8);
+    }
+    else {
+        try {
+            result = std::stoull(str);
+        } catch(...) { return 0; }
+    }
+
+    return result;
+}
 
 std::istream& operator>>(std::istream& in, DataStruct& data) {
     std::string line;
@@ -54,50 +103,19 @@ std::istream& operator>>(std::istream& in, DataStruct& data) {
         std::string keyValue = part.substr(spacePos + 1);
 
         if (keyName == "key1") {
-            if (keyValue.size() == 3 && keyValue[0] == '\'' && keyValue[2] == '\'') {
-                k1 = keyValue[1];
-                hasKey1 = true;
-            }
-            else if (keyValue.find('.') != std::string::npos || keyValue.find('e') != std::string::npos || keyValue.find('E') != std::string::npos) {
-                double d;
-                try {
-                    d = std::stod(keyValue);
-                    k1 = static_cast<char>(d);
-                    hasKey1 = true;
-                } catch(...) {}
-            }
-            else {
-                try {
-                    long long ll = std::stoll(keyValue);
-                    k1 = static_cast<char>(ll);
-                    hasKey1 = true;
-                } catch(...) {}
-            }
-        }
-        else if (keyName == "key2") {
-            if (keyValue.size() > 2 && keyValue[0] == '0' && (keyValue[1] == 'x' || keyValue[1] == 'X')) {
-                k2 = 0;
-                for (size_t i = 2; i < keyValue.size(); ++i) {
-                    char c = keyValue[i];
-                    if (c >= '0' && c <= '9') k2 = k2 * 16 + (c - '0');
-                    else if (c >= 'A' && c <= 'F') k2 = k2 * 16 + (c - 'A' + 10);
-                    else if (c >= 'a' && c <= 'f') k2 = k2 * 16 + (c - 'a' + 10);
-                    else { in.setstate(std::ios::failbit); return in; }
-                }
-                hasKey2 = true;
-            }
-            else {
-                try {
-                    k2 = std::stoull(keyValue);
-                    hasKey2 = true;
-                } catch(...) {}
-            }
-        }
-        else if (keyName == "key3") {
+            k1 = parseKey1(keyValue);
+            hasKey1 = true;
+        } else if (keyName == "key2") {
+            k2 = parseKey2(keyValue);
+            hasKey2 = true;
+        } else if (keyName == "key3") {
             if (keyValue.size() >= 2 && keyValue[0] == '"' && keyValue.back() == '"') {
                 k3 = keyValue.substr(1, keyValue.size() - 2);
                 hasKey3 = true;
             }
+        } else {
+            in.setstate(std::ios::failbit);
+            return in;
         }
     }
 
@@ -113,8 +131,9 @@ std::istream& operator>>(std::istream& in, DataStruct& data) {
 }
 
 std::ostream& operator<<(std::ostream& out, const DataStruct& data) {
-    out << "(:key1 '" << data.key1 << "':key2 0x" << std::hex << std::uppercase
-        << data.key2 << std::dec << std::nouppercase << ":key3 \"" << data.key3 << "\":)";
+    out << "(:key1 '" << data.key1 << "':key2 0x"
+        << std::hex << std::uppercase << data.key2
+        << std::dec << std::nouppercase << ":key3 \"" << data.key3 << "\":)";
     return out;
 }
 
