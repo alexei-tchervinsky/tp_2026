@@ -21,7 +21,7 @@ public:
     }
 
 private:
-    std::set<std::string> mTranslations; // std::set всегда хранит элементы отсортированными
+    std::set<std::string> mTranslations; // std::set хранит элементы сортированно
 };
 
 #endif

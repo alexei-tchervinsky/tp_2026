@@ -48,7 +48,8 @@ public:
         bool hole = false;
         removeRecursive(mRoot, key, hole);
 
-        // Если корень стал внутренним узлом без ключей, его ребенок становится новым корнем
+        // Если корень стал внутренним узлом без ключей,
+        // его ребенок становится новым корнем
         if (!mRoot->isLeaf()) {
             InternalNode* internal = static_cast<InternalNode*>(mRoot);
             if (internal->mChildren.size() == 1) {
@@ -83,25 +84,28 @@ private:
         if (node->isLeaf()) return node;
         InternalNode* internal = static_cast<InternalNode*>(node);
         size_t i = 0;
-        while (i < internal->mKeys.size() && key >= internal->mKeys[i]) i++;
+        while (i < internal->mKeys.size() && key >= internal->mKeys[i]) {
+            i++;
+        }
         return findLeaf(internal->mChildren[i], key);
     }
 
-    SplitResult* insertRecursive(Node* node, const std::string& key, const std::string& translation) {
+    SplitResult* insertRecursive(Node* node, const std::string& k,
+                                 const std::string& tr) {
         if (node->isLeaf()) {
             LeafNode* leaf = static_cast<LeafNode*>(node);
-            if (leaf->mKey == key) {
-                leaf->mData.addTranslation(translation);
+            if (leaf->mKey == k) {
+                leaf->mData.addTranslation(tr);
                 return nullptr;
             }
-            Node* newLeaf = createLeaf(key, translation);
+            Node* newLeaf = createLeaf(k, tr);
             SplitResult* res = new SplitResult();
-            if (key < leaf->mKey) {
+            if (k < leaf->mKey) {
                 res->key = leaf->mKey;
                 res->left = newLeaf;
                 res->right = leaf;
             } else {
-                res->key = key;
+                res->key = k;
                 res->left = leaf;
                 res->right = newLeaf;
             }
@@ -110,13 +114,14 @@ private:
 
         InternalNode* internal = static_cast<InternalNode*>(node);
         size_t i = 0;
-        while (i < internal->mKeys.size() && key >= internal->mKeys[i]) i++;
+        while (i < internal->mKeys.size() && k >= internal->mKeys[i]) i++;
 
-        SplitResult* res = insertRecursive(internal->mChildren[i], key, translation);
+        SplitResult* res = insertRecursive(internal->mChildren[i], k, tr);
         if (res) {
             internal->mKeys.insert(internal->mKeys.begin() + i, res->key);
             internal->mChildren[i] = res->left;
-            internal->mChildren.insert(internal->mChildren.begin() + i + 1, res->right);
+            internal->mChildren.insert(internal->mChildren.begin() + i + 1,
+                                       res->right);
             delete res;
             if (internal->mKeys.size() > 2) {
                 InternalNode* rightNode = new InternalNode();
@@ -132,7 +137,6 @@ private:
         return nullptr;
     }
 
-    // Вспомогательный метод для рекурсивного удаления
     void removeRecursive(Node*& node, const std::string& key, bool& hole) {
         if (node->isLeaf()) {
             LeafNode* leaf = static_cast<LeafNode*>(node);
@@ -150,13 +154,15 @@ private:
         if (childHole) {
             delete internal->mChildren[i];
             internal->mChildren.erase(internal->mChildren.begin() + i);
-            if (i < internal->mKeys.size()) internal->mKeys.erase(internal->mKeys.begin() + i);
-            else if (i > 0) internal->mKeys.erase(internal->mKeys.begin() + i - 1);
+            if (i < internal->mKeys.size()) {
+                internal->mKeys.erase(internal->mKeys.begin() + i);
+            } else if (i > 0) {
+                internal->mKeys.erase(internal->mKeys.begin() + i - 1);
+            }
 
-            // Если в узле осталось меньше 2 детей, сообщаем родителю о "дыре"
+            // Если в узле меньше 2 детей, сообщаем родителю о "дыре"
             if (internal->mChildren.size() < 2) hole = true;
             else hole = false;
-
         }
     }
 
