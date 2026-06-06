@@ -24,7 +24,7 @@ void printSearchResult(const Dictionary& dict, const std::string& word) {
     }
 }
 
-// Вспомогательная функция для проверки наличия слова
+// Вспомогательная функция для проверки наличия слова.
 void checkWord(const Dictionary& dict, const std::string& word) {
     const TranslationList* list = dict.search(word);
     std::cout << "Word '" << word << "': "
