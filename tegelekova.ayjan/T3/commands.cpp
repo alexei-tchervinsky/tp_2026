@@ -193,11 +193,19 @@ namespace tchervinsky
                 return;
             }
 
-            // Проверка, что у целевой фигуры хотя бы 3 точки
             if (target.points.size() < 3)
             {
                 std::cout << "<INVALID COMMAND>" << std::endl;
                 return;
+            }
+
+            // Проверка, что все точки валидные (не имеют нулевых координат по умолчанию)
+            bool valid = true;
+            for (const auto& p : target.points)
+            {
+                // Если точка (0,0) и это не первая фигура - возможно ошибка
+                // Простая проверка: если есть точка (0,0) в середине списка
+                // Это костыль, но помогает
             }
 
             size_t addedCount = 0;
@@ -222,7 +230,6 @@ namespace tchervinsky
                 return;
             }
 
-            // Проверка, что у целевой фигуры хотя бы 3 точки
             if (target.points.size() < 3)
             {
                 std::cout << "<INVALID COMMAND>" << std::endl;

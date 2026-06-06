@@ -27,20 +27,21 @@ namespace tchervinsky
     {
         char bracket1, bracket2, comma;
 
-        // Сбрасываем состояние, если оно было в ошибке
-        if (in.fail())
-        {
-            in.clear();
-        }
+        // Сохраняем позицию для возможного отката
+        std::streampos pos = in.tellg();
 
         in >> bracket1 >> p.x >> comma >> p.y >> bracket2;
 
         if (in.fail() || bracket1 != '(' || bracket2 != ')' || comma != ';')
         {
+            in.clear();
+            in.seekg(pos);
             in.setstate(std::ios::failbit);
             p.x = 0;
             p.y = 0;
+            return in;
         }
+
         return in;
     }
 
