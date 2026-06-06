@@ -56,7 +56,19 @@ namespace tchervinsky
             }
             else
             {
-                size_t vertexCount = std::stoul(param);
+                size_t vertexCount;
+                try {
+                    vertexCount = std::stoul(param);
+                }
+                catch (...) {
+                    std::cout << "<INVALID COMMAND>" << std::endl;
+                    return;
+                }
+                if (vertexCount < 3)
+                {
+                    std::cout << "<INVALID COMMAND>" << std::endl;
+                    return;
+                }
                 double sum = 0.0;
                 for (size_t i = 0; i < polygons.size(); i++)
                     if (polygons[i].points.size() == vertexCount)
@@ -151,7 +163,19 @@ namespace tchervinsky
             }
             else
             {
-                size_t vertexCount = std::stoul(param);
+                size_t vertexCount;
+                try {
+                    vertexCount = std::stoul(param);
+                }
+                catch (...) {
+                    std::cout << "<INVALID COMMAND>" << std::endl;
+                    return;
+                }
+                if (vertexCount < 3)
+                {
+                    std::cout << "<INVALID COMMAND>" << std::endl;
+                    return;
+                }
                 size_t count = 0;
                 for (size_t i = 0; i < polygons.size(); i++)
                     if (polygons[i].points.size() == vertexCount)
