@@ -1,11 +1,15 @@
 #include "polygon.hpp"
-#include "commands.hpp"
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <string>
 #include <iterator>
 #include <algorithm>
+
+namespace tchervinsky
+{
+    void processCommand(std::vector<Polygon>& polygons, const std::string& line);
+}
 
 int main(int argc, char* argv[])
 {

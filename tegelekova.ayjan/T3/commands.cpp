@@ -1,4 +1,4 @@
-#include "commands.hpp"
+#include "polygon.hpp"
 #include "stream_guard.hpp"
 #include <iostream>
 #include <iomanip>
@@ -9,6 +9,9 @@
 
 namespace tchervinsky
 {
+    // Объявление функции (раньше было в commands.hpp)
+    void processCommand(std::vector<Polygon>& polygons, const std::string& line);
+
     static void printDouble(double value)
     {
         StreamGuard guard(std::cout);
