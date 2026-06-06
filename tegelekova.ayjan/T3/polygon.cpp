@@ -26,22 +26,14 @@ namespace tchervinsky
     std::istream& operator>>(std::istream& in, Point& p)
     {
         char bracket1, bracket2, comma;
-
-        // Сохраняем позицию для возможного отката
-        std::streampos pos = in.tellg();
-
         in >> bracket1 >> p.x >> comma >> p.y >> bracket2;
 
-        if (in.fail() || bracket1 != '(' || bracket2 != ')' || comma != ';')
+        if (!in || bracket1 != '(' || bracket2 != ')' || comma != ';')
         {
-            in.clear();
-            in.seekg(pos);
             in.setstate(std::ios::failbit);
             p.x = 0;
             p.y = 0;
-            return in;
         }
-
         return in;
     }
 
@@ -75,6 +67,19 @@ namespace tchervinsky
             if (!in)
                 return in;
             temp.push_back(p);
+        }
+
+        // Проверка на дубликаты точек
+        for (size_t i = 0; i < temp.size(); ++i)
+        {
+            for (size_t j = i + 1; j < temp.size(); ++j)
+            {
+                if (temp[i].x == temp[j].x && temp[i].y == temp[j].y)
+                {
+                    in.setstate(std::ios::failbit);
+                    return in;
+                }
+            }
         }
 
         if (temp.size() != vertexCount)

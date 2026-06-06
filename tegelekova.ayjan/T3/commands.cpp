@@ -1,4 +1,4 @@
-#include "polygon.hpp"
+#include "commands.hpp"
 #include "stream_guard.hpp"
 #include <iostream>
 #include <iomanip>
@@ -13,6 +13,16 @@ namespace tchervinsky
     {
         StreamGuard guard(std::cout);
         std::cout << std::fixed << std::setprecision(1) << value << std::endl;
+    }
+
+    static bool hasDuplicatePoints(const Polygon& p)
+    {
+        const auto& points = p.points;
+        for (size_t i = 0; i < points.size(); ++i)
+            for (size_t j = i + 1; j < points.size(); ++j)
+                if (points[i].x == points[j].x && points[i].y == points[j].y)
+                    return true;
+        return false;
     }
 
     void processCommand(std::vector<Polygon>& polygons, const std::string& line)
@@ -199,6 +209,12 @@ namespace tchervinsky
                 return;
             }
 
+            if (hasDuplicatePoints(target))
+            {
+                std::cout << "<INVALID COMMAND>" << std::endl;
+                return;
+            }
+
             size_t addedCount = 0;
             for (size_t i = 0; i < polygons.size(); i++)
             {
@@ -222,6 +238,12 @@ namespace tchervinsky
             }
 
             if (target.points.size() < 3)
+            {
+                std::cout << "<INVALID COMMAND>" << std::endl;
+                return;
+            }
+
+            if (hasDuplicatePoints(target))
             {
                 std::cout << "<INVALID COMMAND>" << std::endl;
                 return;

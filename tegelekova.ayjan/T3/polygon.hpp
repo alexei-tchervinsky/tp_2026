@@ -29,16 +29,9 @@ namespace tchervinsky
     double getArea(const Polygon& poly);
     bool isRectangle(const Polygon& poly);
     bool hasRightAngle(const Polygon& poly);
-    bool isInFrame(
-        const Polygon& poly,
-        const std::vector<Polygon>& polygons
-    );
+    bool isInFrame(const Polygon& poly, const std::vector<Polygon>& polygons);
     bool isPermutation(const Polygon& a, const Polygon& b);
-    void getBoundingBox(
-        const std::vector<Polygon>& polygons,
-        int& minX, int& minY,
-        int& maxX, int& maxY
-    );
+    void getBoundingBox(const std::vector<Polygon>& polygons, int& minX, int& minY, int& maxX, int& maxY);
 }
 
 #endif
