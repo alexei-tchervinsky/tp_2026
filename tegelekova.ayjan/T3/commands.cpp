@@ -30,9 +30,9 @@ namespace tchervinsky
 
   void areaOdd(const std::vector<Polygon>& polygons)
   {
-    std::vector<double> areas;
-    std::copy_if(polygons.begin(), polygons.end(), std::back_inserter(areas),
-      [](const Polygon& p) { return p.points.size() % 2 == 1; });
+      std::vector<double> areas;
+      std::transform(polygons.begin(), polygons.end(), std::back_inserter(areas),
+          [](const Polygon& p) { return getArea(p); });
 
     double sum = std::accumulate(areas.begin(), areas.end(), 0.0,
       [](double acc, const Polygon& p) { return acc + getArea(p); });

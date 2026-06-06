@@ -11,6 +11,7 @@ namespace tchervinsky
         int x, y;
         bool operator==(const Point& other) const;
         bool operator!=(const Point& other) const;
+        bool operator<(const Point& other) const;  // добавлено для multiset
     };
 
     std::istream& operator>>(std::istream& in, Point& p);
@@ -25,33 +26,15 @@ namespace tchervinsky
     std::istream& operator>>(std::istream& in, Polygon& poly);
     std::ostream& operator<<(std::ostream& out, const Polygon& poly);
 
-    // Вычисление площади фигуры (по формуле Гаусса)
     double getArea(const Polygon& poly);
-
-    // Проверка, является ли фигура прямоугольником
     bool isRectangle(const Polygon& poly);
-
-    // Проверка, содержит ли фигура прямой угол
     bool hasRightAngle(const Polygon& poly);
-
-    // Проверка, лежит ли фигура внутри
-    // ограничивающего прямоугольника всех фигур
-    bool isInFrame(
-        const Polygon& poly,
-        const std::vector<Polygon>& polygons
-    );
-
-    // Проверка, является ли одна фигура перестановкой другой
+    bool isInFrame(const Polygon& poly, const std::vector<Polygon>& polygons);
     bool isPermutation(const Polygon& a, const Polygon& b);
-
-    // Нахождение ограничивающего прямоугольника
-    // (minX, minY, maxX, maxY)
     void getBoundingBox(
         const std::vector<Polygon>& polygons,
-        int& minX,
-        int& minY,
-        int& maxX,
-        int& maxY
+        int& minX, int& minY,
+        int& maxX, int& maxY
     );
 }
 
