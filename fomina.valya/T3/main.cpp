@@ -143,20 +143,20 @@ int main(int argc, char* argv[]) {
                                                   return acc;
                                               });
 
-            auto [min_x_it, max_x_it] = std::minmax_element(all_points.begin(), all_points.end(),
-                                                            [](const Point& a, const Point& b) { return a.x < b.x; });
-            auto [min_y_it, max_y_it] = std::minmax_element(all_points.begin(), all_points.end(),
-                                                            [](const Point& a, const Point& b) { return a.y < b.y; });
+            auto minmax_x = std::minmax_element(all_points.begin(), all_points.end(),
+                                                [](const Point& a, const Point& b) { return a.x < b.x; });
+            auto minmax_y = std::minmax_element(all_points.begin(), all_points.end(),
+                                                [](const Point& a, const Point& b) { return a.y < b.y; });
 
-            auto [t_min_x_it, t_max_x_it] = std::minmax_element(target.points.begin(), target.points.end(),
-                                                                [](const Point& a, const Point& b) { return a.x < b.x; });
-            auto [t_min_y_it, t_max_y_it] = std::minmax_element(target.points.begin(), target.points.end(),
-                                                                [](const Point& a, const Point& b) { return a.y < b.y; });
+            auto t_minmax_x = std::minmax_element(target.points.begin(), target.points.end(),
+                                                  [](const Point& a, const Point& b) { return a.x < b.x; });
+            auto t_minmax_y = std::minmax_element(target.points.begin(), target.points.end(),
+                                                  [](const Point& a, const Point& b) { return a.y < b.y; });
 
-            bool inside = (t_min_x_it->x >= min_x_it->x) &&
-            (t_max_x_it->x <= max_x_it->x) &&
-            (t_min_y_it->y >= min_y_it->y) &&
-            (t_max_y_it->y <= max_y_it->y);
+            bool inside = (t_minmax_x.first->x >= minmax_x.first->x) &&
+            (t_minmax_x.second->x <= minmax_x.second->x) &&
+            (t_minmax_y.first->y >= minmax_y.first->y) &&
+            (t_minmax_y.second->y <= minmax_y.second->y);
 
             std::cout << (inside ? "<TRUE>" : "<FALSE>") << "\n";
         }
