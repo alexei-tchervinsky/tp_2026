@@ -49,6 +49,48 @@ unsigned long long parseKey2(const std::string& s) {
     throw std::invalid_argument("Invalid ULL format");
 }
 
+// Парсит одно поле вида "keyX value" или "keyX "value with : inside""
+// Возвращает пару (имя_поля, значение) и обновляет pos
+std::pair<std::string, std::string> parseField(const std::string& line, size_t& pos) {
+    // Пропускаем начальный ':'
+    if (pos >= line.size() || line[pos] != ':') {
+        throw std::invalid_argument("Expected ':'");
+    }
+    pos++;
+
+    // Находим пробел (разделитель между именем и значением)
+    size_t spacePos = line.find(' ', pos);
+    if (spacePos == std::string::npos) {
+        throw std::invalid_argument("Expected space after field name");
+    }
+
+    std::string keyName = line.substr(pos, spacePos - pos);
+    pos = spacePos + 1;
+
+    // Теперь читаем значение
+    std::string value;
+    if (pos < line.size() && line[pos] == '"') {
+        // Значение в кавычках - читаем до закрывающей кавычки
+        pos++; // пропускаем открывающую "
+        size_t endQuote = line.find('"', pos);
+        if (endQuote == std::string::npos) {
+            throw std::invalid_argument("Unclosed quote");
+        }
+        value = line.substr(pos, endQuote - pos);
+        pos = endQuote + 1; // пропускаем закрывающую "
+    } else {
+        // Значение без кавычек - читаем до следующего ':'
+        size_t colonPos = line.find(':', pos);
+        if (colonPos == std::string::npos) {
+            throw std::invalid_argument("Expected ':' after value");
+        }
+        value = line.substr(pos, colonPos - pos);
+        pos = colonPos; // не пропускаем ':', он будет обработан в следующем вызове
+    }
+
+    return {keyName, value};
+}
+
 std::istream& operator>>(std::istream& in, DataStruct& data) {
     std::string line;
     if (!std::getline(in, line)) {
@@ -56,6 +98,7 @@ std::istream& operator>>(std::istream& in, DataStruct& data) {
         return in;
     }
 
+    // Trim
     size_t start = line.find_first_not_of(" \t\r\n");
     size_t end = line.find_last_not_of(" \t\r\n");
     if (start == std::string::npos) {
@@ -64,43 +107,25 @@ std::istream& operator>>(std::istream& in, DataStruct& data) {
     }
     line = line.substr(start, end - start + 1);
 
+    // Проверяем формат (: ... :)
     if (line.size() < 4 || line.substr(0, 2) != "(:" || line.substr(line.size() - 2) != ":)") {
         in.setstate(std::ios::failbit);
         return in;
     }
 
-    line = line.substr(2, line.size() - 4);
-
-    std::vector<std::string> parts;
-    size_t pos = 0;
-    size_t nextPos = line.find(':');
-    while (nextPos != std::string::npos) {
-        parts.push_back(line.substr(pos, nextPos - pos));
-        pos = nextPos + 1;
-        nextPos = line.find(':', pos);
-    }
-    parts.push_back(line.substr(pos));
-
-    if (parts.size() != 3) {
-        in.setstate(std::ios::failbit);
-        return in;
-    }
+    // Убираем (: в начале, но оставляем :) в конце для парсинга
+    line = line.substr(1, line.size() - 1); // теперь line = ":key1 ...:)"
 
     bool hasKey1 = false, hasKey2 = false, hasKey3 = false;
     char k1 = 0;
     unsigned long long k2 = 0;
     std::string k3;
 
-    for (const auto& part : parts) {
-        size_t spacePos = part.find(' ');
-        if (spacePos == std::string::npos) {
-            in.setstate(std::ios::failbit);
-            return in;
-        }
-        std::string keyName = part.substr(0, spacePos);
-        std::string keyValue = part.substr(spacePos + 1);
+    size_t pos = 0;
+    try {
+        while (pos < line.size() - 2) { // -2 чтобы не парсить ":)"
+            auto [keyName, keyValue] = parseField(line, pos);
 
-        try {
             if (keyName == "key1") {
                 k1 = parseKey1(keyValue);
                 hasKey1 = true;
@@ -108,17 +133,13 @@ std::istream& operator>>(std::istream& in, DataStruct& data) {
                 k2 = parseKey2(keyValue);
                 hasKey2 = true;
             } else if (keyName == "key3") {
-                if (keyValue.size() >= 2 && keyValue[0] == '"' && keyValue.back() == '"') {
-                    k3 = keyValue.substr(1, keyValue.size() - 2);
-                } else {
-                    k3 = keyValue;
-                }
+                k3 = keyValue;
                 hasKey3 = true;
             }
-        } catch (...) {
-            in.setstate(std::ios::failbit);
-            return in;
         }
+    } catch (...) {
+        in.setstate(std::ios::failbit);
+        return in;
     }
 
     if (!hasKey1 || !hasKey2 || !hasKey3) {
