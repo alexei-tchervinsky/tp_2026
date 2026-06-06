@@ -193,6 +193,13 @@ namespace tchervinsky
                 return;
             }
 
+            // Проверка, что у целевой фигуры хотя бы 3 точки
+            if (target.points.size() < 3)
+            {
+                std::cout << "<INVALID COMMAND>" << std::endl;
+                return;
+            }
+
             size_t addedCount = 0;
             for (size_t i = 0; i < polygons.size(); i++)
             {
@@ -210,6 +217,13 @@ namespace tchervinsky
             Polygon target;
             iss >> target;
             if (iss.fail() || target.points.empty())
+            {
+                std::cout << "<INVALID COMMAND>" << std::endl;
+                return;
+            }
+
+            // Проверка, что у целевой фигуры хотя бы 3 точки
+            if (target.points.size() < 3)
             {
                 std::cout << "<INVALID COMMAND>" << std::endl;
                 return;
