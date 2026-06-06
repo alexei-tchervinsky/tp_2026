@@ -1,10 +1,15 @@
-﻿#include "data_struct.cpp"
-#include <iostream>
+﻿#include <iostream>
 #include <vector>
 #include <algorithm>
-#include <sstream>
 #include <string>
+#include <sstream>
 #include <iomanip>
+
+struct DataStruct {
+    char key1;
+    unsigned long long key2;
+    std::string key3;
+};
 
 std::istream& operator>>(std::istream& in, DataStruct& data) {
     std::string line;
