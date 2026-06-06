@@ -1,0 +1,4 @@
+(:key1 'a':key2 1.0e-1:key3 "Data":)
+(:key1 'z':key2 1.0e-1:key3 "Data":)
+(:key1 'z':key2 1.0e+2:key3 "Data":)
+(:key1 'z':key2 1.0e+2:key3 "Data with :":)
