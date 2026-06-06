@@ -4,7 +4,9 @@
 #include <numeric>
 #include <algorithm>
 #include <iomanip>
+#include <stdexcept>
 
+// Вспомогательная функция для проверки, что в строке не осталось лишних данных
 void validateEnd(std::stringstream& ss) {
     std::string extra;
     if (ss >> extra) throw std::runtime_error("");
@@ -26,8 +28,9 @@ void cmdArea(const std::vector<Polygon>& figures, std::stringstream& ss) {
         if (figures.empty()) throw std::runtime_error("");
         res = std::accumulate(figures.begin(), figures.end(), 0.0, [](double s, const Polygon& p) {
             return s + getArea(p);
-        }) / figures.size();
+        }) / static_cast<double>(figures.size());
     } else {
+        if (!std::all_of(arg.begin(), arg.end(), ::isdigit)) throw std::runtime_error("");
         size_t n = std::stoul(arg);
         if (n < 3) throw std::runtime_error("");
         res = std::accumulate(figures.begin(), figures.end(), 0.0, [n](double s, const Polygon& p) {
@@ -83,6 +86,7 @@ void cmdCount(const std::vector<Polygon>& figures, std::stringstream& ss) {
     } else if (arg == "ODD") {
         res = std::count_if(figures.begin(), figures.end(), [](const Polygon& p) { return p.points.size() % 2 != 0; });
     } else {
+        if (!std::all_of(arg.begin(), arg.end(), ::isdigit)) throw std::runtime_error("");
         size_t n = std::stoul(arg);
         if (n < 3) throw std::runtime_error("");
         res = std::count_if(figures.begin(), figures.end(), [n](const Polygon& p) { return p.points.size() == n; });

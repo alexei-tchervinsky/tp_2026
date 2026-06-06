@@ -3,8 +3,7 @@
 #include <algorithm>
 
 double getArea(const Polygon& p) {
-    double area = 0.0;
-    size_t n = p.points.size();
+    double area = 0.0; size_t n = p.points.size();
     for (size_t i = 0; i < n; ++i) {
         area += (static_cast<double>(p.points[i].x) * p.points[(i + 1) % n].y -
                  static_cast<double>(p.points[(i + 1) % n].x) * p.points[i].y);
@@ -32,6 +31,17 @@ bool segmentsIntersect(Segment s1, Segment s2) {
     return false;
 }
 
+bool isInside(Point pt, const Polygon& poly) {
+    bool res = false;
+    for (size_t i = 0, j = poly.points.size() - 1; i < poly.points.size(); j = i++) {
+        if (((poly.points[i].y > pt.y) != (poly.points[j].y > pt.y)) &&
+            (pt.x < (poly.points[j].x - poly.points[i].x) * (pt.y - poly.points[i].y) /
+            static_cast<double>(poly.points[j].y - poly.points[i].y) + poly.points[i].x))
+            res = !res;
+    }
+    return res;
+}
+
 bool polygonsIntersect(const Polygon& p1, const Polygon& p2) {
     for (size_t i = 0; i < p1.points.size(); ++i) {
         Segment s1 = {p1.points[i], p1.points[(i + 1) % p1.points.size()]};
@@ -40,5 +50,6 @@ bool polygonsIntersect(const Polygon& p1, const Polygon& p2) {
             if (segmentsIntersect(s1, s2)) return true;
         }
     }
-    return false;
+    return (!p1.points.empty() && isInside(p1.points[0], p2)) ||
+           (!p2.points.empty() && isInside(p2.points[0], p1));
 }
