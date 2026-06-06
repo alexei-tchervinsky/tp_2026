@@ -5,7 +5,8 @@
 
 // вспомогательные операторы ввода
 
-// Читает ровно один символ-разделитель (пропускает пробелы через sentry/>>)
+// Читает ровно один символ-разделитель
+//(пропускает пробелы через sentry/>>)
 std::istream& operator>>(std::istream& in, DelimiterIO&& dest)
 {
   std::istream::sentry sentry(in);
@@ -43,7 +44,9 @@ std::istream& operator>>(std::istream& in, CharLitIO&& dest)
   {
     return in;
   }
-  // Открывающая кавычка, один символ (get не пропускает пробелы), закрывающая кавычка
+  // Открывающая кавычка, один символ
+// (get не пропускает пробелы),
+// закрывающая кавычка
   in >> DelimiterIO{ '\'' };
   in.get(dest.ref);
   in >> DelimiterIO{ '\'' };
@@ -61,7 +64,8 @@ std::istream& operator>>(std::istream& in, StringIO&& dest)
   return std::getline(in >> DelimiterIO{ '"' }, dest.ref, '"');
 }
 
-// Читает ключевое слово без кавычек и проверяет совпадение с ожидаемым
+// Читает ключевое слово без кавычек
+// и проверяет совпадение с ожидаемым
 std::istream& operator>>(std::istream& in, LabelIO&& dest)
 {
   std::istream::sentry sentry(in);
@@ -80,7 +84,8 @@ std::istream& operator>>(std::istream& in, LabelIO&& dest)
 // оператор ввода для DataStruct
 // Формат: (:key1 0xFF:key2 'A':key3 "Hello":)
 // Поля могут идти в любом порядке.
-// При невалидной записи ставит failbit — пропуск плохих строк делает main.
+// При невалидной записи ставит failbit
+// — пропуск плохих строк делает main.
 std::istream& operator>>(std::istream& in, DataStruct& dest)
 {
   std::istream::sentry sentry(in);
@@ -161,8 +166,9 @@ std::istream& operator>>(std::istream& in, DataStruct& dest)
 }
 
 // оператор вывода
-// Формат вывода совпадает с форматом ввода: (:key1 0xFF:key2 'A':key3 "Hello":)
-// iofmtguard восстанавливает флаги форматирования потока после вывода
+// Формат вывода совпадает с форматом ввода:
+// (:key1 0xFF:key2 'A':key3 "Hello":)
+// iofmtguard восстанавливает флаги форматирования
 std::ostream& operator<<(std::ostream& out, const DataStruct& src)
 {
   std::ostream::sentry sentry(out);
