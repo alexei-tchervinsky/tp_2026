@@ -1,8 +1,8 @@
 #include "DataStruct.hpp"
 #include "iofmtguard.hpp"
-#include <limits>
 #include <iomanip>
 #include <cmath>
+#include <limits>
 
 std::istream& operator>>(std::istream& in, DelimiterIO&& dest)
 {
@@ -27,30 +27,7 @@ std::istream& operator>>(std::istream& in, DblSciIO&& dest)
   {
     return in;
   }
-
-  double mantissa = 0.0;
-  in >> mantissa;
-  if (!in)
-  {
-    return in;
-  }
-
-  char e = '0';
-  in >> e;
-  if (in && (e != 'e' && e != 'E'))
-  {
-    in.setstate(std::ios::failbit);
-    return in;
-  }
-
-  long long exponent = 0;
-  in >> exponent;
-  if (!in)
-  {
-    return in;
-  }
-
-  dest.ref = mantissa * std::pow(10.0, exponent);
+  in >> dest.ref;
   return in;
 }
 
@@ -90,58 +67,51 @@ std::istream& operator>>(std::istream& in, DataStruct& dest)
   bool hasKey2 = false;
   bool hasKey3 = false;
 
+  in >> DelimiterIO{ '(' } >> DelimiterIO{ ':' };
+
+  for (int i = 0; i < 3 && in; ++i)
   {
-    using sep = DelimiterIO;
-    using dbl = DblSciIO;
-    using chr = CharLitIO;
-    using str = StringIO;
+    std::string keyName;
+    in >> keyName;
 
-    in >> sep{ '(' } >> sep{ ':' };
-
-    for (int i = 0; i < 3 && in; ++i)
+    if (!in)
     {
-      std::string keyName;
-      in >> keyName;
-
-      if (!in)
-      {
-        break;
-      }
-
-      if (keyName == "key1")
-      {
-        in >> dbl{ input.key1 } >> sep{ ':' };
-        if (in)
-        {
-          hasKey1 = true;
-        }
-      }
-      else if (keyName == "key2")
-      {
-        in >> chr{ input.key2 } >> sep{ ':' };
-        if (in)
-        {
-          hasKey2 = true;
-        }
-      }
-      else if (keyName == "key3")
-      {
-        in >> str{ input.key3 } >> sep{ ':' };
-        if (in)
-        {
-          hasKey3 = true;
-        }
-      }
-      else
-      {
-        in.setstate(std::ios::failbit);
-      }
+      break;
     }
 
-    if (in)
+    if (keyName == "key1")
     {
-      in >> sep{ ')' };
+      in >> DblSciIO{ input.key1 } >> DelimiterIO{ ':' };
+      if (in)
+      {
+        hasKey1 = true;
+      }
     }
+    else if (keyName == "key2")
+    {
+      in >> CharLitIO{ input.key2 } >> DelimiterIO{ ':' };
+      if (in)
+      {
+        hasKey2 = true;
+      }
+    }
+    else if (keyName == "key3")
+    {
+      in >> StringIO{ input.key3 } >> DelimiterIO{ ':' };
+      if (in)
+      {
+        hasKey3 = true;
+      }
+    }
+    else
+    {
+      in.setstate(std::ios::failbit);
+    }
+  }
+
+  if (in)
+  {
+    in >> DelimiterIO{ ')' };
   }
 
   if (in && hasKey1 && hasKey2 && hasKey3)
@@ -164,16 +134,7 @@ std::ostream& operator<<(std::ostream& out, const DataStruct& src)
     return out;
   }
   iofmtguard fmtguard(out);
-
-  double val = src.key1;
-  int exp = 0;
-  if (val != 0.0)
-  {
-    exp = std::floor(std::log10(std::abs(val)));
-    val /= std::pow(10.0, exp);
-  }
-
-  out << "(:key1 " << std::fixed << std::setprecision(1) << val << (exp >= 0 ? "e+" : "e") << exp;
+  out << "(:key1 " << std::scientific << std::setprecision(6) << src.key1;
   out << ":key2 '" << src.key2 << "'";
   out << ":key3 \"" << src.key3 << "\"";
   out << ":)";
@@ -198,3 +159,4 @@ bool DataStructComparator::operator()(const DataStruct& lhs,
 {
   return lhs < rhs;
 }
+

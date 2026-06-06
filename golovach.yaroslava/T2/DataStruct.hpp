@@ -38,7 +38,6 @@ std::istream& operator>>(std::istream& in, DblSciIO&& dest);
 std::istream& operator>>(std::istream& in, CharLitIO&& dest);
 std::istream& operator>>(std::istream& in, StringIO&& dest);
 std::istream& operator>>(std::istream& in, DataStruct& dest);
-
 std::ostream& operator<<(std::ostream& out, const DataStruct& src);
 
 struct DataStructComparator
@@ -47,3 +46,4 @@ struct DataStructComparator
 };
 
 #endif
+
