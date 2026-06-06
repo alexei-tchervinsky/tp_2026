@@ -7,10 +7,7 @@
 
 namespace tchervinsky
 {
-    void processCommand(
-        std::vector<Polygon>& polygons,
-        const std::string& line
-    );
+	void processCommand(std::vector<Polygon>& polygons, const std::string& line);
 }
 
 #endif

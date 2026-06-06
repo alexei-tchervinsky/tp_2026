@@ -44,11 +44,7 @@ namespace tchervinsky
     {
         if (points.size() != other.points.size())
             return false;
-        return std::equal(
-            points.begin(),
-            points.end(),
-            other.points.begin()
-        );
+        return std::equal(points.begin(), points.end(), other.points.begin());
     }
 
     std::istream& operator>>(std::istream& in, Polygon& poly)
@@ -153,10 +149,7 @@ namespace tchervinsky
         return false;
     }
 
-    void getBoundingBox(
-        const std::vector<Polygon>& polygons,
-        int& minX, int& minY,
-        int& maxX, int& maxY)
+    void getBoundingBox(const std::vector<Polygon>& polygons, int& minX, int& minY, int& maxX, int& maxY)
     {
         if (polygons.empty())
             return;
@@ -176,37 +169,26 @@ namespace tchervinsky
         }
     }
 
-    bool isInFrame(
-        const Polygon& poly,
-        const std::vector<Polygon>& polygons)
+    bool isInFrame(const Polygon& poly, const std::vector<Polygon>& polygons)
     {
         int minX, minY, maxX, maxY;
         getBoundingBox(polygons, minX, minY, maxX, maxY);
 
         for (const auto& p : poly.points)
         {
-            if (p.x < minX || p.x > maxX ||
-                p.y < minY || p.y > maxY)
+            if (p.x < minX || p.x > maxX || p.y < minY || p.y > maxY)
                 return false;
         }
         return true;
     }
 
-    bool isPermutation(
-        const Polygon& a,
-        const Polygon& b)
+    bool isPermutation(const Polygon& a, const Polygon& b)
     {
         if (a.points.size() != b.points.size())
             return false;
 
-        std::multiset<Point> setA(
-            a.points.begin(),
-            a.points.end()
-        );
-        std::multiset<Point> setB(
-            b.points.begin(),
-            b.points.end()
-        );
+        std::multiset<Point> setA(a.points.begin(), a.points.end());
+        std::multiset<Point> setB(b.points.begin(), b.points.end());
 
         return setA == setB;
     }
