@@ -1,204 +1,212 @@
 #include "DataStruct.h"
-#include <cstdlib>
-#include <algorithm>
+#include "iofmtguard.hpp"
+#include <limits>
+#include <iomanip>
 
-// ============ КОНСТРУКТОРЫ ============
-DataStruct::DataStruct() : key1(0), key2('\0'), key3("") {}
+// вспомогательные операторы ввода
 
-DataStruct::DataStruct(unsigned long long k1, char k2, const std::string& k3)
-    : key1(k1), key2(k2), key3(k3) {}
+// Читает ровно один символ-разделитель (пропускает пробелы через sentry/>>)
+std::istream& operator>>(std::istream& in, DelimiterIO&& dest)
+{
+  std::istream::sentry sentry(in);
+  if (!sentry)
+  {
+    return in;
+  }
+  char c = '0';
+  in >> c;
+  if (in && (c != dest.exp))
+  {
+    in.setstate(std::ios::failbit);
+  }
+  return in;
+}
 
-DataStruct::DataStruct(const DataStruct& other)
-    : key1(other.key1), key2(other.key2), key3(other.key3) {}
+// Читает беззнаковое целое в hex-формате: 0xFF, 0xABC, 0X1a
+// std::hex вместе с >> сам распознаёт префикс 0x/0X
+std::istream& operator>>(std::istream& in, UllHexIO&& dest)
+{
+  std::istream::sentry sentry(in);
+  if (!sentry)
+  {
+    return in;
+  }
+  in >> std::hex >> dest.ref >> std::dec;
+  return in;
+}
 
-DataStruct::DataStruct(DataStruct&& other) noexcept
-    : key1(std::move(other.key1)), key2(std::move(other.key2)),
-      key3(std::move(other.key3)) {}
+// Читает символьный литерал вида 'A'
+std::istream& operator>>(std::istream& in, CharLitIO&& dest)
+{
+  std::istream::sentry sentry(in);
+  if (!sentry)
+  {
+    return in;
+  }
+  // Открывающая кавычка, один символ (get не пропускает пробелы), закрывающая кавычка
+  in >> DelimiterIO{ '\'' };
+  in.get(dest.ref);
+  in >> DelimiterIO{ '\'' };
+  return in;
+}
 
-// ============ ОПЕРАТОРЫ ПРИСВАИВАНИЯ ============
-DataStruct& DataStruct::operator=(const DataStruct& other) {
-    if (this != &other) {
-        DataStruct temp(other);
-        swap(temp);
+// Читает строку в двойных кавычках: "Hello world"
+std::istream& operator>>(std::istream& in, StringIO&& dest)
+{
+  std::istream::sentry sentry(in);
+  if (!sentry)
+  {
+    return in;
+  }
+  return std::getline(in >> DelimiterIO{ '"' }, dest.ref, '"');
+}
+
+// Читает ключевое слово без кавычек и проверяет совпадение с ожидаемым
+std::istream& operator>>(std::istream& in, LabelIO&& dest)
+{
+  std::istream::sentry sentry(in);
+  if (!sentry)
+  {
+    return in;
+  }
+  std::string data;
+  if ((in >> data) && (data != dest.exp))
+  {
+    in.setstate(std::ios::failbit);
+  }
+  return in;
+}
+
+// оператор ввода для дата структ
+// Формат: (:key1 0xFF:key2 'A':key3 "Hello":)
+// поля могут идти в любом порядке
+//Собирает всё вместе: читает строку, парсит поля, заполняет структуру
+// плохие строки пропускаются — цикл продолжается до следующей валидной записи.
+std::istream& operator>>(std::istream& in, DataStruct& dest)
+{
+  // Пробуем читать строки пока не найдём валидную запись или не кончится поток
+  while (in.good())
+  {
+    std::istream::sentry sentry(in);
+    if (!sentry)
+    {
+      break;
     }
-    return *this;
-}
 
-DataStruct& DataStruct::operator=(DataStruct&& other) noexcept {
-    if (this != &other) {
-        swap(other);
-    }
-    return *this;
-}
+    DataStruct input;
+    bool hasKey1 = false;
+    bool hasKey2 = false;
+    bool hasKey3 = false;
 
-void DataStruct::swap(DataStruct& other) noexcept {
-    using std::swap;
-    swap(key1, other.key1);
-    swap(key2, other.key2);
-    swap(key3, other.key3);
-}
+    // Сохраняем позицию: если разбор не удастся — пропускаем до конца строки
+    std::streampos lineStart = in.tellg();
 
-// ============ ПАРСЕР KEY1 ============
-bool DataStruct::parseKey1(const std::string& valueStr,
-                           unsigned long long& result) {
-    std::string trimmed = valueStr;
-    size_t start = trimmed.find_first_not_of(" \t");
-    size_t end = trimmed.find_last_not_of(" \t");
-    if (start == std::string::npos) return false;
-    trimmed = trimmed.substr(start, end - start + 1);
+    {
+      using sep = DelimiterIO;
+      using hex = UllHexIO;
+      using chr = CharLitIO;
+      using str = StringIO;
 
-    if (trimmed.length() < 3 || trimmed[0] != '0') return false;
-    if (trimmed[1] != 'x' && trimmed[1] != 'X') return false;
+      in >> sep{ '(' } >> sep{ ':' };
 
-    char* endPtr;
-    unsigned long long value = std::strtoull(trimmed.c_str(), &endPtr, 16);
-    if (*endPtr != '\0') return false;
+      for (int i = 0; i < 3 && in; ++i)
+      {
+        std::string keyName;
+        in >> keyName;
 
-    result = value;
-    return true;
-}
-
-// ============ ПАРСЕР KEY2 ============
-bool DataStruct::parseKey2(const std::string& valueStr, char& result) {
-    std::string trimmed = valueStr;
-    size_t start = trimmed.find_first_not_of(" \t");
-    size_t end = trimmed.find_last_not_of(" \t");
-    if (start == std::string::npos) return false;
-    trimmed = trimmed.substr(start, end - start + 1);
-
-    if (trimmed.length() != 3) return false;
-    if (trimmed[0] != '\'' || trimmed[2] != '\'') return false;
-
-    result = trimmed[1];
-    return true;
-}
-
-// ============ ПАРСЕР KEY3 ============
-bool DataStruct::parseKey3(const std::string& valueStr, std::string& result) {
-    std::string trimmed = valueStr;
-    size_t start = trimmed.find_first_not_of(" \t");
-    if (start == std::string::npos) return false;
-    trimmed = trimmed.substr(start);
-
-    if (trimmed[0] != '"') return false;
-
-    size_t end = 1;
-    while (end < trimmed.length()) {
-        if (trimmed[end] == '"') {
-            break;
-        }
-        end++;
-    }
-    if (end >= trimmed.length()) return false;
-
-    result = trimmed.substr(1, end - 1);
-    return true;
-}
-
-// ============ ОПЕРАТОР ВВОДА ============
-std::istream& operator>>(std::istream& is, DataStruct& data) {
-    std::string line;
-
-    while (std::getline(is, line)) {
-        size_t openParen = line.find('(');
-        if (openParen == std::string::npos) continue;
-
-        size_t closeParen = line.rfind(')');
-        if (closeParen == std::string::npos || closeParen <= openParen) continue;
-
-        std::string content = line.substr(openParen + 1,
-                                          closeParen - openParen - 1);
-
-        unsigned long long k1 = 0;
-        char k2 = '\0';
-        std::string k3;
-        bool foundKey1 = false, foundKey2 = false, foundKey3 = false;
-
-        size_t pos = 0;
-        while (pos < content.length()) {
-            size_t colonPos = content.find(':', pos);
-            if (colonPos == std::string::npos) break;
-
-            size_t spacePos = content.find(' ', colonPos + 1);
-            if (spacePos == std::string::npos) break;
-
-            std::string fieldName = content.substr(colonPos + 1,
-                                                   spacePos - colonPos - 1);
-
-            // Для key3 нужно искать закрывающую кавычку, а не двоеточие
-            if (fieldName == "key3") {
-                // Ищем начало значения (после пробела)
-                size_t valStart = spacePos + 1;
-                if (valStart >= content.length()) break;
-
-                // Ищем закрывающую кавычку
-                size_t quotePos = content.find('"', valStart);
-                if (quotePos == std::string::npos) break;
-
-                // Ищем вторую кавычку (закрывающую)
-                size_t endQuotePos = content.find('"', quotePos + 1);
-                if (endQuotePos == std::string::npos) break;
-
-                // Значение — между кавычками
-                std::string fieldValue = content.substr(quotePos,
-                                                        endQuotePos - quotePos + 1);
-
-                // Ищем следующее двоеточие после закрывающей кавычки
-                size_t nextColon = content.find(':', endQuotePos + 1);
-                pos = (nextColon == std::string::npos) ?
-                      content.length() : nextColon;
-
-                foundKey3 = DataStruct::parseKey3(fieldValue, k3);
-            } else {
-                // Для key1 и key2 ищем следующее двоеточие
-                size_t nextColon = content.find(':', spacePos + 1);
-                std::string fieldValue;
-                if (nextColon == std::string::npos) {
-                    fieldValue = content.substr(spacePos + 1);
-                } else {
-                    fieldValue = content.substr(spacePos + 1,
-                                               nextColon - spacePos - 1);
-                }
-                pos = (nextColon == std::string::npos) ?
-                      content.length() : nextColon;
-
-                if (fieldName == "key1") {
-                    foundKey1 = DataStruct::parseKey1(fieldValue, k1);
-                } else if (fieldName == "key2") {
-                    foundKey2 = DataStruct::parseKey2(fieldValue, k2);
-                }
-            }
+        if (!in)
+        {
+          break;
         }
 
-        if (foundKey1 && foundKey2 && foundKey3) {
-            data.key1 = k1;
-            data.key2 = k2;
-            data.key3 = k3;
-            return is;
+        if (keyName == "key1")
+        {
+          in >> hex{ input.key1 } >> sep{ ':' };
+          if (in)
+          {
+            hasKey1 = true;
+          }
         }
+        else if (keyName == "key2")
+        {
+          in >> chr{ input.key2 } >> sep{ ':' };
+          if (in)
+          {
+            hasKey2 = true;
+          }
+        }
+        else if (keyName == "key3")
+        {
+          in >> str{ input.key3 } >> sep{ ':' };
+          if (in)
+          {
+            hasKey3 = true;
+          }
+        }
+        else
+        {
+          in.setstate(std::ios::failbit);
+        }
+      }
+
+      if (in)
+      {
+        in >> sep{ ')' };
+      }
     }
 
-    is.setstate(std::ios::failbit);
-    return is;
+    if (in && hasKey1 && hasKey2 && hasKey3)
+    {
+      // Запись успешно прочитана
+      dest = std::move(input);
+      return in;
+    }
+
+    // Запись невалидна — очищаем failbit и пропускаем остаток строки
+    in.clear();
+    in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+  }
+
+  // Поток исчерпан — выставляем failbit, чтобы istream_iterator остановился
+  in.setstate(std::ios::failbit);
+  return in;
 }
 
-// ============ ОПЕРАТОР ВЫВОДА ============
-std::ostream& operator<<(std::ostream& os, const DataStruct& data) {
-    os << "(:key1 0x" << std::hex << std::uppercase << data.key1
-       << std::dec << std::nouppercase;
-    os << ":key2 '" << data.key2 << "'";
-    os << ":key3 \"" << data.key3 << "\":)";
-    return os;
+// оператор вывода
+// Формат вывода совпадает с форматом ввода: (:key1 0xFF:key2 'A':key3 "Hello":)
+// iofmtguard восстанавливает флаги форматирования потока после вывода
+std::ostream& operator<<(std::ostream& out, const DataStruct& src)
+{
+  std::ostream::sentry sentry(out);
+  if (!sentry)
+  {
+    return out;
+  }
+  iofmtguard fmtguard(out);
+  out << "(:key1 0x" << std::hex << std::uppercase << src.key1;
+  out << ":key2 '" << src.key2 << "'";
+  out << ":key3 \"" << src.key3 << "\"";
+  out << ":)";
+  return out;
 }
 
-// ============ КОМПАРАТОР ============
+// оператор сравнения
+bool DataStruct::operator<(const DataStruct& other) const
+{
+  if (key1 != other.key1)
+  {
+    return key1 < other.key1;
+  }
+  if (key2 != other.key2)
+  {
+    return key2 < other.key2;
+  }
+  return key3.size() < other.key3.size();
+}
+
+// компаратор
 bool DataStructComparator::operator()(const DataStruct& lhs,
-                                      const DataStruct& rhs) const {
-    if (lhs.key1 != rhs.key1) {
-        return lhs.key1 < rhs.key1;
-    }
-    if (lhs.key2 != rhs.key2) {
-        return lhs.key2 < rhs.key2;
-    }
-    return lhs.key3.length() < rhs.key3.length();
+                                      const DataStruct& rhs) const
+{
+  return lhs < rhs;
 }
