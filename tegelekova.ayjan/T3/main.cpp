@@ -10,14 +10,14 @@ int main(int argc, char* argv[])
 {
     if (argc != 2)
     {
-        std::cerr << "Ошибка: не указан файл с фигурами" << std::endl;
+        std::cerr << "Error: filename required" << std::endl;
         return 1;
     }
 
     std::ifstream file(argv[1]);
     if (!file)
     {
-        std::cerr << "Ошибка: не удалось открыть файл " << argv[1] << std::endl;
+        std::cerr << "Error: cannot open file " << argv[1] << std::endl;
         return 1;
     }
 
@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
 
         if (iss >> p)
             polygons.push_back(p);
-        // если ошибка — просто пропускаем строку
+
     }
 
     while (std::getline(std::cin, line))

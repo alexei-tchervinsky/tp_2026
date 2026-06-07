@@ -26,7 +26,6 @@ namespace tchervinsky
         {
             std::string param;
             iss >> param;
-
             if (param == "EVEN")
             {
                 double sum = 0.0;
@@ -58,18 +57,9 @@ namespace tchervinsky
             else
             {
                 size_t vertexCount;
-                try {
-                    vertexCount = std::stoul(param);
-                }
-                catch (...) {
-                    std::cout << "<INVALID COMMAND>" << std::endl;
-                    return;
-                }
-                if (vertexCount < 3)
-                {
-                    std::cout << "<INVALID COMMAND>" << std::endl;
-                    return;
-                }
+                try { vertexCount = std::stoul(param); }
+                catch (...) { std::cout << "<INVALID COMMAND>" << std::endl; return; }
+                if (vertexCount < 3) { std::cout << "<INVALID COMMAND>" << std::endl; return; }
                 double sum = 0.0;
                 for (size_t i = 0; i < polygons.size(); i++)
                     if (polygons[i].points.size() == vertexCount)
@@ -81,13 +71,7 @@ namespace tchervinsky
         {
             std::string param;
             iss >> param;
-
-            if (polygons.empty())
-            {
-                std::cout << "<INVALID COMMAND>" << std::endl;
-                return;
-            }
-
+            if (polygons.empty()) { std::cout << "<INVALID COMMAND>" << std::endl; return; }
             if (param == "AREA")
             {
                 double maxArea = getArea(polygons[0]);
@@ -106,20 +90,13 @@ namespace tchervinsky
                         maxVert = polygons[i].points.size();
                 std::cout << maxVert << std::endl;
             }
-            else
-                std::cout << "<INVALID COMMAND>" << std::endl;
+            else std::cout << "<INVALID COMMAND>" << std::endl;
         }
         else if (cmd == "MIN")
         {
             std::string param;
             iss >> param;
-
-            if (polygons.empty())
-            {
-                std::cout << "<INVALID COMMAND>" << std::endl;
-                return;
-            }
-
+            if (polygons.empty()) { std::cout << "<INVALID COMMAND>" << std::endl; return; }
             if (param == "AREA")
             {
                 double minArea = getArea(polygons[0]);
@@ -138,14 +115,12 @@ namespace tchervinsky
                         minVert = polygons[i].points.size();
                 std::cout << minVert << std::endl;
             }
-            else
-                std::cout << "<INVALID COMMAND>" << std::endl;
+            else std::cout << "<INVALID COMMAND>" << std::endl;
         }
         else if (cmd == "COUNT")
         {
             std::string param;
             iss >> param;
-
             if (param == "EVEN")
             {
                 size_t count = 0;
@@ -165,18 +140,9 @@ namespace tchervinsky
             else
             {
                 size_t vertexCount;
-                try {
-                    vertexCount = std::stoul(param);
-                }
-                catch (...) {
-                    std::cout << "<INVALID COMMAND>" << std::endl;
-                    return;
-                }
-                if (vertexCount < 3)
-                {
-                    std::cout << "<INVALID COMMAND>" << std::endl;
-                    return;
-                }
+                try { vertexCount = std::stoul(param); }
+                catch (...) { std::cout << "<INVALID COMMAND>" << std::endl; return; }
+                if (vertexCount < 3) { std::cout << "<INVALID COMMAND>" << std::endl; return; }
                 size_t count = 0;
                 for (size_t i = 0; i < polygons.size(); i++)
                     if (polygons[i].points.size() == vertexCount)
@@ -187,29 +153,19 @@ namespace tchervinsky
         else if (cmd == "ECHO")
         {
             Polygon target;
-            if (!(iss >> target))
-            {
-                std::cout << "<INVALID COMMAND>" << std::endl;
-                return;
-            }
+            if (!(iss >> target)) { std::cout << "<INVALID COMMAND>" << std::endl; return; }
+            if (target.points.size() < 3) { std::cout << "<INVALID COMMAND>" << std::endl; return; }
 
-            if (target.points.size() < 3)
+            // проверка на дубликаты
             {
-                std::cout << "<INVALID COMMAND>" << std::endl;
-                return;
-            }
-
-            // Проверка на дубликаты точек
-            {
-                std::set<Point> uniquePoints(target.points.begin(), target.points.end());
-                if (uniquePoints.size() != target.points.size())
+                std::set<Point> uniq(target.points.begin(), target.points.end());
+                if (uniq.size() != target.points.size())
                 {
                     std::cout << "<INVALID COMMAND>" << std::endl;
                     return;
                 }
             }
 
-            // Проверка на лишние символы после команды
             std::string rest;
             std::getline(iss, rest);
             if (!rest.empty() && rest.find_first_not_of(" \t\n\r") != std::string::npos)
@@ -218,37 +174,27 @@ namespace tchervinsky
                 return;
             }
 
-            size_t addedCount = 0;
+            size_t added = 0;
             for (size_t i = 0; i < polygons.size(); ++i)
             {
                 if (polygons[i] == target)
                 {
                     polygons.insert(polygons.begin() + i + 1, target);
-                    addedCount++;
+                    added++;
                     i++;
                 }
             }
-            std::cout << addedCount << std::endl;
+            std::cout << added << std::endl;
         }
         else if (cmd == "INFRAME")
         {
             Polygon target;
-            if (!(iss >> target))
-            {
-                std::cout << "<INVALID COMMAND>" << std::endl;
-                return;
-            }
+            if (!(iss >> target)) { std::cout << "<INVALID COMMAND>" << std::endl; return; }
+            if (target.points.size() < 3) { std::cout << "<INVALID COMMAND>" << std::endl; return; }
 
-            if (target.points.size() < 3)
             {
-                std::cout << "<INVALID COMMAND>" << std::endl;
-                return;
-            }
-
-            // Проверка на дубликаты точек
-            {
-                std::set<Point> uniquePoints(target.points.begin(), target.points.end());
-                if (uniquePoints.size() != target.points.size())
+                std::set<Point> uniq(target.points.begin(), target.points.end());
+                if (uniq.size() != target.points.size())
                 {
                     std::cout << "<INVALID COMMAND>" << std::endl;
                     return;
@@ -263,12 +209,7 @@ namespace tchervinsky
                 return;
             }
 
-            if (polygons.empty())
-            {
-                std::cout << "<FALSE>" << std::endl;
-                return;
-            }
-
+            if (polygons.empty()) { std::cout << "<FALSE>" << std::endl; return; }
             bool result = isInFrame(target, polygons);
             std::cout << (result ? "<TRUE>" : "<FALSE>") << std::endl;
         }
