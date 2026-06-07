@@ -28,7 +28,7 @@ namespace tchervinsky
         char bracket1, bracket2, comma;
         in >> bracket1 >> p.x >> comma >> p.y >> bracket2;
 
-        if (!in || bracket1 != '(' || bracket2 != ')' || comma != ';')
+        if (!in || bracket1 != '(' || bracket2 != ')' || (comma != ';' && comma != ','))
         {
             in.setstate(std::ios::failbit);
             p.x = 0;

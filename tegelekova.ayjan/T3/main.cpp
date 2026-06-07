@@ -29,6 +29,7 @@ int main(int argc, char* argv[])
     std::vector<tchervinsky::Polygon> polygons;
     std::string line;
 
+    // Читаем файл построчно, пропуская ошибочные строки
     while (std::getline(file, line))
     {
         if (line.empty()) continue;
@@ -43,11 +44,13 @@ int main(int argc, char* argv[])
         // если ошибка — просто пропускаем строку
     }
 
+    // Обработка команд из stdin
     while (std::getline(std::cin, line))
     {
         if (line.empty()) continue;
         tchervinsky::processCommand(polygons, line);
     }
-
+    std::cout << "Нажмите Enter для выхода...";
+    std::cin.get();
     return 0;
 }

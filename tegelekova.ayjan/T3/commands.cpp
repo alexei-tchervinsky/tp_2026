@@ -15,12 +15,13 @@ namespace tchervinsky
         std::cout << std::fixed << std::setprecision(1) << value << std::endl;
     }
 
+    // Вспомогательная функция для проверки дубликатов точек
     static bool hasDuplicatePoints(const Polygon& p)
     {
-        const auto& points = p.points;
-        for (size_t i = 0; i < points.size(); ++i)
-            for (size_t j = i + 1; j < points.size(); ++j)
-                if (points[i].x == points[j].x && points[i].y == points[j].y)
+        const auto& pts = p.points;
+        for (size_t i = 0; i < pts.size(); ++i)
+            for (size_t j = i + 1; j < pts.size(); ++j)
+                if (pts[i].x == pts[j].x && pts[i].y == pts[j].y)
                     return true;
         return false;
     }
@@ -196,8 +197,7 @@ namespace tchervinsky
         else if (cmd == "ECHO")
         {
             Polygon target;
-            iss >> target;
-            if (iss.fail() || target.points.empty())
+            if (!(iss >> target))
             {
                 std::cout << "<INVALID COMMAND>" << std::endl;
                 return;
@@ -215,14 +215,23 @@ namespace tchervinsky
                 return;
             }
 
+            // Проверка, что после фигуры нет лишнего мусора
+            std::string rest;
+            std::getline(iss, rest);
+            if (!rest.empty() && rest.find_first_not_of(" \t\n\r") != std::string::npos)
+            {
+                std::cout << "<INVALID COMMAND>" << std::endl;
+                return;
+            }
+
             size_t addedCount = 0;
-            for (size_t i = 0; i < polygons.size(); i++)
+            for (size_t i = 0; i < polygons.size(); ++i)
             {
                 if (polygons[i] == target)
                 {
                     polygons.insert(polygons.begin() + i + 1, target);
                     addedCount++;
-                    i++;
+                    i++; // пропускаем только что добавленную копию
                 }
             }
             std::cout << addedCount << std::endl;
@@ -230,8 +239,7 @@ namespace tchervinsky
         else if (cmd == "INFRAME")
         {
             Polygon target;
-            iss >> target;
-            if (iss.fail() || target.points.empty())
+            if (!(iss >> target))
             {
                 std::cout << "<INVALID COMMAND>" << std::endl;
                 return;
@@ -249,9 +257,17 @@ namespace tchervinsky
                 return;
             }
 
-            if (polygons.empty())
+            std::string rest;
+            std::getline(iss, rest);
+            if (!rest.empty() && rest.find_first_not_of(" \t\n\r") != std::string::npos)
             {
                 std::cout << "<INVALID COMMAND>" << std::endl;
+                return;
+            }
+
+            if (polygons.empty())
+            {
+                std::cout << "<FALSE>" << std::endl;
                 return;
             }
 
