@@ -7,6 +7,7 @@
 #include <string>
 #include <cmath>
 #include <set>
+#include <algorithm>
 
 namespace tchervinsky
 {
@@ -156,7 +157,6 @@ namespace tchervinsky
             if (!(iss >> target)) { std::cout << "<INVALID COMMAND>" << std::endl; return; }
             if (target.points.size() < 3) { std::cout << "<INVALID COMMAND>" << std::endl; return; }
 
-            // проверка на дубликаты точек
             {
                 std::set<Point> uniq(target.points.begin(), target.points.end());
                 if (uniq.size() != target.points.size())
@@ -174,10 +174,20 @@ namespace tchervinsky
                 return;
             }
 
+            // Сравниваем полигоны без учёта порядка вершин
+            auto pointsMatch = [](const Polygon& a, const Polygon& b) -> bool {
+                if (a.points.size() != b.points.size()) return false;
+                std::vector<Point> va(a.points.begin(), a.points.end());
+                std::vector<Point> vb(b.points.begin(), b.points.end());
+                std::sort(va.begin(), va.end());
+                std::sort(vb.begin(), vb.end());
+                return va == vb;
+                };
+
             size_t added = 0;
             for (size_t i = 0; i < polygons.size(); ++i)
             {
-                if (polygons[i] == target)
+                if (pointsMatch(polygons[i], target))
                 {
                     polygons.insert(polygons.begin() + i + 1, target);
                     added++;
@@ -185,7 +195,6 @@ namespace tchervinsky
                 }
             }
 
-            // Если фигура не найдена в коллекции — добавляем её (новая фигура)
             if (added == 0)
             {
                 polygons.push_back(target);
