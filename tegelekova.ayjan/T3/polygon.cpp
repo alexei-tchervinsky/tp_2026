@@ -60,11 +60,8 @@ namespace tchervinsky
         for (size_t i = 0; i < vertexCount; ++i)
         {
             Point p;
-            if (!(in >> p))
-            {
-                in.setstate(std::ios::failbit);
-                return in;
-            }
+            in >> p;
+            if (!in) return in;
             temp.push_back(p);
         }
 
