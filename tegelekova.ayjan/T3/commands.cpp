@@ -6,16 +6,18 @@
 #include <vector>
 #include <string>
 #include <cmath>
-#include <set>
+#include <set> // для std::set
 
 namespace tchervinsky
 {
+    // Вспомогательная функция для вывода double с точностью 1 знак
     static void printDouble(double value)
     {
         StreamGuard guard(std::cout);
         std::cout << std::fixed << std::setprecision(1) << value << std::endl;
     }
 
+    // Вспомогательная функция для проверки дубликатов точек
     static bool hasDuplicatePoints(const Polygon& p)
     {
         const auto& pts = p.points;
@@ -34,6 +36,7 @@ namespace tchervinsky
 
         if (cmd == "AREA")
         {
+
             std::string param;
             iss >> param;
 
@@ -89,6 +92,7 @@ namespace tchervinsky
         }
         else if (cmd == "MAX")
         {
+
             std::string param;
             iss >> param;
 
@@ -121,6 +125,7 @@ namespace tchervinsky
         }
         else if (cmd == "MIN")
         {
+
             std::string param;
             iss >> param;
 
@@ -153,6 +158,7 @@ namespace tchervinsky
         }
         else if (cmd == "COUNT")
         {
+
             std::string param;
             iss >> param;
 
@@ -209,7 +215,7 @@ namespace tchervinsky
                 return;
             }
 
-            // Проверка на дубликаты точек
+            // --- ПРОВЕРКА НА ДУБЛИКАТЫ ТОЧЕК ---
             {
                 std::set<Point> uniquePoints(target.points.begin(), target.points.end());
                 if (uniquePoints.size() != target.points.size())
@@ -230,7 +236,6 @@ namespace tchervinsky
                 }
             }
             std::cout << addedCount << std::endl;
-            }
         }
         else if (cmd == "INFRAME")
         {
@@ -247,18 +252,14 @@ namespace tchervinsky
                 return;
             }
 
-            if (hasDuplicatePoints(target))
+            // --- ПРОВЕРКА НА ДУБЛИКАТЫ ТОЧЕК ---
             {
-                std::cout << "<INVALID COMMAND>" << std::endl;
-                return;
-            }
-
-            std::string rest;
-            std::getline(iss, rest);
-            if (!rest.empty() && rest.find_first_not_of(" \t\n\r") != std::string::npos)
-            {
-                std::cout << "<INVALID COMMAND>" << std::endl;
-                return;
+                std::set<Point> uniquePoints(target.points.begin(), target.points.end());
+                if (uniquePoints.size() != target.points.size())
+                {
+                    std::cout << "<INVALID COMMAND>" << std::endl;
+                    return;
+                }
             }
 
             if (polygons.empty())
