@@ -157,15 +157,6 @@ namespace tchervinsky
             if (!(iss >> target)) { std::cout << "<INVALID COMMAND>" << std::endl; return; }
             if (target.points.size() < 3) { std::cout << "<INVALID COMMAND>" << std::endl; return; }
 
-            {
-                std::set<Point> uniq(target.points.begin(), target.points.end());
-                if (uniq.size() != target.points.size())
-                {
-                    std::cout << "<INVALID COMMAND>" << std::endl;
-                    return;
-                }
-            }
-
             std::string rest;
             std::getline(iss, rest);
             if (!rest.empty() && rest.find_first_not_of(" \t\n\r") != std::string::npos)
