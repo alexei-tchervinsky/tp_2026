@@ -17,16 +17,6 @@ namespace tchervinsky
         std::cout << std::fixed << std::setprecision(1) << value << std::endl;
     }
 
-    // Вспомогательная функция для проверки дубликатов точек
-    static bool hasDuplicatePoints(const Polygon& p)
-    {
-        const auto& pts = p.points;
-        for (size_t i = 0; i < pts.size(); ++i)
-            for (size_t j = i + 1; j < pts.size(); ++j)
-                if (pts[i].x == pts[j].x && pts[i].y == pts[j].y)
-                    return true;
-        return false;
-    }
 
     void processCommand(std::vector<Polygon>& polygons, const std::string& line)
     {
