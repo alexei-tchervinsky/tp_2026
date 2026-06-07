@@ -165,32 +165,17 @@ namespace tchervinsky
                 return;
             }
 
-            // Сравниваем полигоны без учёта порядка вершин
-            auto pointsMatch = [](const Polygon& a, const Polygon& b) -> bool {
-                if (a.points.size() != b.points.size()) return false;
-                std::vector<Point> va(a.points.begin(), a.points.end());
-                std::vector<Point> vb(b.points.begin(), b.points.end());
-                std::sort(va.begin(), va.end());
-                std::sort(vb.begin(), vb.end());
-                return va == vb;
-                };
-
             size_t added = 0;
             for (size_t i = 0; i < polygons.size(); ++i)
             {
-                if (pointsMatch(polygons[i], target))
+                if (polygons[i] == target)
                 {
                     polygons.insert(polygons.begin() + i + 1, target);
                     added++;
                     i++;
                 }
             }
-
-            if (added == 0)
-            {
-                polygons.push_back(target);
-            }
-
+            // НЕ ДОБАВЛЯЕМ НОВУЮ ФИГУРУ, ЕСЛИ НЕ НАШЛИ
             std::cout << added << std::endl;
         }
         else if (cmd == "INFRAME")
@@ -199,6 +184,7 @@ namespace tchervinsky
             if (!(iss >> target)) { std::cout << "<INVALID COMMAND>" << std::endl; return; }
             if (target.points.size() < 3) { std::cout << "<INVALID COMMAND>" << std::endl; return; }
 
+            // Проверка на дубликаты точек (оставляем для INFRAME)
             {
                 std::set<Point> uniq(target.points.begin(), target.points.end());
                 if (uniq.size() != target.points.size())
