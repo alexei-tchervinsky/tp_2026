@@ -1,38 +1,35 @@
-#include "DataStruct.hpp"
 #include <iostream>
 #include <vector>
 #include <algorithm>
 #include <iterator>
 #include <limits>
+#include "DataStruct.hpp"
 
 int main()
 {
-  std::vector< DataStruct > dataVector;
+    std::vector<DataStruct> data;
 
-  while (!std::cin.eof())
-  {
-    if (!std::cin)
+    std::istream_iterator<DataStruct> input_iterator(std::cin);
+    std::istream_iterator<DataStruct> end_of_stream;
+
+    while (input_iterator != end_of_stream)
     {
-      std::cin.clear();
-      std::cin.ignore(std::numeric_limits< std::streamsize >::max(), '\n');
-      continue;
+        data.push_back(*input_iterator);
+        ++input_iterator;
+        
+        if (std::cin.fail())
+        {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            input_iterator = std::istream_iterator<DataStruct>(std::cin);
+        }
     }
 
-    std::copy(
-      std::istream_iterator< DataStruct >(std::cin),
-      std::istream_iterator< DataStruct >(),
-      std::back_inserter(dataVector)
-    );
-  }
+    std::sort(data.begin(), data.end(), compareDataStruct);
 
-  std::sort(dataVector.begin(), dataVector.end(), DataStructComparator{});
+    std::ostream_iterator<DataStruct> output_iterator(std::cout, "\n");
+    std::copy(data.begin(), data.end(), output_iterator);
 
-  std::copy(
-    dataVector.begin(),
-    dataVector.end(),
-    std::ostream_iterator< DataStruct >(std::cout, "\n")
-  );
-
-  return 0;
+    return 0;
 }
 

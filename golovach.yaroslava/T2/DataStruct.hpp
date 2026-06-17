@@ -1,49 +1,20 @@
-#ifndef DATASTRUCT_HPP
-#define DATASTRUCT_HPP
+#ifndef DATA_STRUCT_HPP
+#define DATA_STRUCT_HPP
 
-#include <iostream>
 #include <string>
+#include <iostream>
 
 struct DataStruct
 {
-  double key1;
-  char key2;
-  std::string key3;
-
-  bool operator<(const DataStruct& other) const;
+    double key1;       // DBL SCI
+    char key2;         // CHR LIT
+    std::string key3;  // String
 };
 
-struct DelimiterIO
-{
-  char exp;
-};
+bool compareDataStruct(const DataStruct& lhs, const DataStruct& rhs);
 
-struct DblSciIO
-{
-  double& ref;
-};
-
-struct CharLitIO
-{
-  char& ref;
-};
-
-struct StringIO
-{
-  std::string& ref;
-};
-
-std::istream& operator>>(std::istream& in, DelimiterIO&& dest);
-std::istream& operator>>(std::istream& in, DblSciIO&& dest);
-std::istream& operator>>(std::istream& in, CharLitIO&& dest);
-std::istream& operator>>(std::istream& in, StringIO&& dest);
 std::istream& operator>>(std::istream& in, DataStruct& dest);
 std::ostream& operator<<(std::ostream& out, const DataStruct& src);
 
-struct DataStructComparator
-{
-  bool operator()(const DataStruct& lhs, const DataStruct& rhs) const;
-};
-
-#endif
+#endif // DATA_STRUCT_HPP
 
