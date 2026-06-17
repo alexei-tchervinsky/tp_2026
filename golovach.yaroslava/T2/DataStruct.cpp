@@ -29,45 +29,39 @@ std::istream& operator>>(std::istream& in, DataStruct& dest)
     bool has_key2 = false;
     bool has_key3 = false;
 
-    in >> DelimiterString{"(:"};
-    if (!in) return in;
+    char c = 0;
+    if (!(in >> c) || c != '(' || !(in >> c) || c != ':')
+    {
+        in.setstate(std::ios_base::failbit);
+        return in;
+    }
 
     for (size_t i = 0; i < 3; ++i)
     {
-        in >> DelimiterChar{':'};
-        if (!in) return in;
-
         std::string key_name = "";
-        char ch = 0;
-        while (in >> ch && ch != ' ' && ch != ':')
+        while (in >> c && c != ' ' && c != ':')
         {
-            key_name += ch;
+            key_name += c;
         }
 
-        if (ch == ':')
+        if (c == ' ')
         {
-            in.putback(ch);
+            while (in.get(c) && c == ' ');
         }
 
         if (key_name == "key1")
         {
             if (has_key1) { in.setstate(std::ios_base::failbit); return in; }
-
             std::string val_str = "";
-            while (in >> ch && ch != ':')
+            while (c != ':')
             {
-                val_str += ch;
+                val_str += c;
+                in.get(c);
             }
-            if (ch == ':')
-            {
-                in.putback(ch);
-            }
-
             try
             {
                 size_t processed = 0;
-                double val = std::stod(val_str, &processed);
-                temp.key1 = val;
+                temp.key1 = std::stod(val_str, &processed);
                 has_key1 = true;
             }
             catch (...)
@@ -79,25 +73,25 @@ std::istream& operator>>(std::istream& in, DataStruct& dest)
         else if (key_name == "key2")
         {
             if (has_key2) { in.setstate(std::ios_base::failbit); return in; }
-            char c = 0;
-            in >> DelimiterChar{'\''} >> c >> DelimiterChar{'\''};
-            if (in)
-            {
-                temp.key2 = c;
-                has_key2 = true;
-            }
+            if (c != '\'') in >> c;
+            if (c != '\'') { in.setstate(std::ios_base::failbit); return in; }
+            in.get(c);
+            temp.key2 = c;
+            in >> c;
+            if (c != '\'') { in.setstate(std::ios_base::failbit); return in; }
+            in >> c;
+            has_key2 = true;
         }
         else if (key_name == "key3")
         {
             if (has_key3) { in.setstate(std::ios_base::failbit); return in; }
-            in >> DelimiterChar{'"'};
+            if (c != '"') in >> c;
+            if (c != '"') { in.setstate(std::ios_base::failbit); return in; }
             std::string str = "";
             std::getline(in, str, '"');
-            if (in)
-            {
-                temp.key3 = str;
-                has_key3 = true;
-            }
+            temp.key3 = str;
+            in >> c;
+            has_key3 = true;
         }
         else
         {
@@ -106,11 +100,18 @@ std::istream& operator>>(std::istream& in, DataStruct& dest)
         }
     }
 
-    in >> DelimiterString{":)"};
+    if (c != ')')
+    {
+        in >> c;
+    }
 
-    if (in && has_key1 && has_key2 && has_key3)
+    if (in && has_key1 && has_key2 && has_key3 && c == ')')
     {
         dest = temp;
+    }
+    else
+    {
+        in.setstate(std::ios_base::failbit);
     }
     return in;
 }
