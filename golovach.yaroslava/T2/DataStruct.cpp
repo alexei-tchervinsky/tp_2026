@@ -30,19 +30,51 @@ std::istream& operator>>(std::istream& in, DataStruct& dest)
     bool has_key3 = false;
 
     in >> DelimiterString{"(:"};
+    if (!in) return in;
 
     for (size_t i = 0; i < 3; ++i)
     {
-        in >> DelimiterChar{':'};
+        char next_char = 0;
+        in >> next_char;
+        if (next_char != ':')
+        {
+            in.setstate(std::ios_base::failbit);
+            return in;
+        }
+
+        // Читаем имя ключа (key1, key2 или key3)
         std::string key_name = "";
-        std::getline(in, key_name, ' ');
+        while (in >> next_char && next_char != ' ' && next_char != ':')
+        {
+            key_name += next_char;
+        }
+
+        // Если остановились на двоеточии, вернем его обратно в поток
+        if (next_char == ':')
+        {
+            in.putback(next_char);
+        }
 
         if (key_name == "key1")
         {
             if (has_key1) { in.setstate(std::ios_base::failbit); return in; }
+
             double val = 0.0;
             if (in >> val)
             {
+                // Проверяем, нет ли суффикса 'd' или 'D', который часто используют в тестах для double
+                char suffix = 0;
+                if (in >> suffix)
+                {
+                    if (suffix != 'd' && suffix != 'D')
+                    {
+                        in.putback(suffix);
+                    }
+                }
+                else
+                {
+                    in.clear();
+                }
                 temp.key1 = val;
                 has_key1 = true;
             }
@@ -50,6 +82,7 @@ std::istream& operator>>(std::istream& in, DataStruct& dest)
         else if (key_name == "key2")
         {
             if (has_key2) { in.setstate(std::ios_base::failbit); return in; }
+
             char c = 0;
             in >> DelimiterChar{'\''} >> c >> DelimiterChar{'\''};
             if (in)
@@ -61,7 +94,17 @@ std::istream& operator>>(std::istream& in, DataStruct& dest)
         else if (key_name == "key3")
         {
             if (has_key3) { in.setstate(std::ios_base::failbit); return in; }
-            in >> DelimiterChar{'"'};
+
+            // Пропускаем возможные пробелы перед кавычкой
+            while (in >> next_char && next_char != '"') 
+            {
+                if (next_char != ' ' && next_char != '\t')
+                {
+                    in.setstate(std::ios_base::failbit);
+                    return in;
+                }
+            }
+
             std::string str = "";
             std::getline(in, str, '"');
             if (in)
