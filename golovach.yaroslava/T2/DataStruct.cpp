@@ -42,13 +42,12 @@ std::istream& operator>>(std::istream& in, DataStruct& dest)
             return in;
         }
 
-        // Читаем имя ключа (key1, key2 или key3)
         std::string key_name = "";
         while (in >> next_char && next_char != ' ' && next_char != ':')
         {
             key_name += next_char;
         }
-        // Если остановились на двоеточии, вернем его обратно в поток
+
         if (next_char == ':')
         {
             in.putback(next_char);
@@ -61,7 +60,6 @@ std::istream& operator>>(std::istream& in, DataStruct& dest)
             double val = 0.0;
             if (in >> val)
             {
-                // Проверяем, нет ли суффикса 'd' или 'D', который часто используют в тестах для double
                 char suffix = 0;
                 if (in >> suffix)
                 {
@@ -94,8 +92,7 @@ std::istream& operator>>(std::istream& in, DataStruct& dest)
         {
             if (has_key3) { in.setstate(std::ios_base::failbit); return in; }
 
-            // Пропускаем возможные пробелы перед кавычкой
-            while (in >> next_char && next_char != '"') 
+            while (in >> next_char && next_char != '"')
             {
                 if (next_char != ' ' && next_char != '\t')
                 {
@@ -103,6 +100,7 @@ std::istream& operator>>(std::istream& in, DataStruct& dest)
                     return in;
                 }
             }
+
             std::string str = "";
             std::getline(in, str, '"');
             if (in)
@@ -117,6 +115,7 @@ std::istream& operator>>(std::istream& in, DataStruct& dest)
             return in;
         }
     }
+
     in >> DelimiterString{":)"};
 
     if (in && has_key1 && has_key2 && has_key3)
@@ -125,6 +124,7 @@ std::istream& operator>>(std::istream& in, DataStruct& dest)
     }
     return in;
 }
+
 std::ostream& operator<<(std::ostream& out, const DataStruct& src)
 {
     std::ostream::sentry guard(out);
