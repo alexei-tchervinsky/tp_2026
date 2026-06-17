@@ -13,10 +13,10 @@ int main()
     std::istream_iterator<DataStruct> end_of_stream;
 
     while (input_iterator != end_of_stream)
-    {
+     {
         data.push_back(*input_iterator);
         ++input_iterator;
-        
+
         if (std::cin.fail())
         {
             std::cin.clear();
@@ -32,4 +32,3 @@ int main()
 
     return 0;
 }
- 
