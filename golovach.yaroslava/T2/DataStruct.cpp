@@ -29,83 +29,87 @@ std::istream& operator>>(std::istream& in, DataStruct& dest)
     bool has_key2 = false;
     bool has_key3 = false;
 
-    char c = 0;
-    if (!(in >> c) || c != '(' || !(in >> c) || c != ':')
-    {
-        in.setstate(std::ios_base::failbit);
-        return in;
-    }
+    // Читаем начало структуры
+    in >> DelimiterString{"(:"};
+    if (!in) return in;
 
     for (size_t i = 0; i < 3; ++i)
     {
         std::string key_name = "";
-        while (in >> c && c != ' ' && c != ':')
+        char c = 0;
+
+        // Считываем имя ключа до пробела или двоеточия
+        while (in.get(c) && c != ' ' && c != ':')
         {
             key_name += c;
         }
 
-        if (c == ' ')
+        // Если прочитали лишнее двоеточие, возвращаем его
+        if (c == ':')
         {
-            while (in.get(c) && c == ' ');
+            in.putback(c);
         }
 
         if (key_name == "key1")
         {
             if (has_key1) { in.setstate(std::ios_base::failbit); return in; }
-            std::string val_str = "";
-            while (c != ':')
+            double val = 0.0;
+            // Явно используем scientific для DBL SCI формата
+            if (in >> std::scientific >> val)
             {
-                val_str += c;
-                in.get(c);
-            }
-            try
-            {
-                size_t processed = 0;
-                temp.key1 = std::stod(val_str, &processed);
+                temp.key1 = val;
                 has_key1 = true;
-            }
-            catch (...)
-            {
-                in.setstate(std::ios_base::failbit);
-                return in;
             }
         }
         else if (key_name == "key2")
         {
             if (has_key2) { in.setstate(std::ios_base::failbit); return in; }
-            if (c != '\'') in >> c;
-            if (c != '\'') { in.setstate(std::ios_base::failbit); return in; }
-            in.get(c);
-            temp.key2 = c;
-            in >> c;
-            if (c != '\'') { in.setstate(std::ios_base::failbit); return in; }
-            in >> c;
-            has_key2 = true;
+            char c1 = 0, c2 = 0, c3 = 0;
+            if (in >> c1 >> c2 >> c3 && c1 == '\'' && c3 == '\'')
+            {
+                temp.key2 = c2;
+                has_key2 = true;
+            }
+            else
+            {
+                in.setstate(std::ios_base::failbit);
+                return in;
+            }
         }
         else if (key_name == "key3")
         {
             if (has_key3) { in.setstate(std::ios_base::failbit); return in; }
-            if (c != '"') in >> c;
-            if (c != '"') { in.setstate(std::ios_base::failbit); return in; }
-            std::string str = "";
-            std::getline(in, str, '"');
-            temp.key3 = str;
-            in >> c;
-            has_key3 = true;
+            char quote = 0;
+            if (in >> quote && quote == '"')
+            {
+                std::string str = "";
+                if (std::getline(in, str, '"'))
+                {
+                    temp.key3 = str;
+                    has_key3 = true;
+                }
+            }
+            else
+            {
+                in.setstate(std::ios_base::failbit);
+                return in;
+            }
         }
         else
         {
             in.setstate(std::ios_base::failbit);
             return in;
         }
+
+        // Перед чтением следующего ключа проверяем разделитель ':'
+        in >> DelimiterChar{':'};
+        if (!in) return in;
     }
 
-    if (c != ')')
-    {
-        in >> c;
-    }
+    // Читаем закрывающую скобку
+    in >> DelimiterChar{')'};
 
-    if (in && has_key1 && has_key2 && has_key3 && c == ')')
+    if (in && has_key1 && has_key2 && has_key3)
     {
         dest = temp;
     }
