@@ -1,0 +1,46 @@
+# Local configuration
+.boost_location
+# Built files
+out
+# Emacs temporaries
+\#*\#
+.\#*
+# Various backups
+*.bak
+*~
+# Test configuration
+.config
+.config.cache
+# Helpers
+update-stats.sh
+# ccls
+.ccls-cache
+# MS VS
+**/*.pch
+**/*.db
+**/*.sqlite-journal
+**/*.sqlite
+**/*.json
+**/.suo
+**/*.tlog
+**/*.ipch
+**/*.exe
+**/*.exe.recipe
+**/*.ilk
+**/*.log
+**/*.idb
+**/*.pdb
+**/*.sln
+**/*.vcxproj
+**/*.vcxproj.filters
+**/*.vcxproj.user
+**/*.vs
+**/*.obj
+# mac
+**/.DS_Store
+**/.DS_Store?
+**/*.dSYM
+**/*.xcodeproj
+# nix
+**/*.o
+**/app
