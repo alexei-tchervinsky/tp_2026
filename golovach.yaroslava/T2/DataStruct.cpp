@@ -13,7 +13,7 @@ bool compareDataStruct(const DataStruct& lhs, const DataStruct& rhs)
     return lhs.key3.length() < rhs.key3.length();
 }
 
-// Читает токен до ':' 
+// Читает токен до ':'
 static bool readToken(std::istream& in, std::string& token)
 {
     token.clear();
@@ -95,9 +95,11 @@ std::istream& operator>>(std::istream& in, DataStruct& dest)
         {
             if (has_key1) { in.setstate(std::ios_base::failbit); return in; }
             std::string token;
-            if (!readToken(in, token)) { in.setstate(std::ios_base::failbit); return in; }
+            if (!readToken(in, token))
+            { in.setstate(std::ios_base::failbit); return in; }
             double val = 0.0;
-            if (!parseDblSci(token, val)) { in.setstate(std::ios_base::failbit); return in; }
+            if (!parseDblSci(token, val))
+            { in.setstate(std::ios_base::failbit); return in; }
             temp.key1 = val;
             has_key1 = true;
         }
