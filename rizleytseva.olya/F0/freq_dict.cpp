@@ -6,10 +6,6 @@
 #include <cctype>
 #include <stdexcept>
 
-// Конструкторы и деструктор
-
-// Конструктор с параметром (список инициализации)
-// FIX: добавлена валидация size > 0
 FreqDict::FreqDict(int size)
     : table_((size > 0) ? size : DEFAULT_SIZE),
       size_((size > 0) ? size : DEFAULT_SIZE),
@@ -21,20 +17,17 @@ FreqDict::FreqDict(int size)
     }
 }
 
-// Копирующий конструктор (глубокое копирование списков)
 FreqDict::FreqDict(const FreqDict& other)
     : table_(other.size_),
       size_(other.size_),
       number_(other.number_),
       collisionCount_(other.collisionCount_)
 {
-    // std::list::operator= делает глубокое копирование
     for (int i = 0; i < size_; ++i) {
         table_[i] = other.table_[i];
     }
 }
 
-// Перемещающий конструктор
 FreqDict::FreqDict(FreqDict&& other) noexcept
     : table_(std::move(other.table_)),
       size_(other.size_),
@@ -46,14 +39,12 @@ FreqDict::FreqDict(FreqDict&& other) noexcept
     other.collisionCount_ = 0;
 }
 
-// Оператор присваивания (copy-and-swap)
 FreqDict& FreqDict::operator=(FreqDict other) noexcept
 {
     swap(*this, other);
     return *this;
 }
 
-// Реализация swap для идиомы copy-and-swap
 void swap(FreqDict& first, FreqDict& second) noexcept
 {
     using std::swap;
@@ -63,8 +54,6 @@ void swap(FreqDict& first, FreqDict& second) noexcept
     swap(first.collisionCount_, second.collisionCount_);
 }
 
-// Нормализация ключа
-// FIX: вынесено в отдельный метод, используется в insert/search/remove
 std::string FreqDict::normalize(const std::string& word)
 {
     std::string result;
@@ -75,7 +64,6 @@ std::string FreqDict::normalize(const std::string& word)
     return result;
 }
 
-// Хеш-функция
 std::size_t FreqDict::hashFunction(const std::string& key) const
 {
     std::size_t hash = 0;
@@ -85,14 +73,12 @@ std::size_t FreqDict::hashFunction(const std::string& key) const
     return hash % static_cast<std::size_t>(size_);
 }
 
-// INSERT
 void FreqDict::insert(const std::string& word)
 {
     if (word.empty()) {
         throw std::invalid_argument("FreqDict::insert: empty word");
     }
 
-    // FIX: нормализуем ключ перед хешированием (регистронезависимость)
     const std::string key = normalize(word);
     std::size_t index = hashFunction(key);
 
@@ -103,8 +89,6 @@ void FreqDict::insert(const std::string& word)
         }
     }
 
-    // FIX: коллизия фиксируется один раз при добавлении нового слова в занятый bucket,
-    //      а не при каждом сравнении в цикле
     if (!table_[index].empty()) {
         collisionCount_++;
     }
@@ -113,14 +97,12 @@ void FreqDict::insert(const std::string& word)
     number_++;
 }
 
-// SEARCH
 int FreqDict::search(const std::string& word) const
 {
     if (word.empty()) {
         return 0;
     }
 
-    // FIX: нормализуем ключ для регистронезависимого поиска
     const std::string key = normalize(word);
     std::size_t index = hashFunction(key);
 
@@ -132,14 +114,12 @@ int FreqDict::search(const std::string& word) const
     return 0;
 }
 
-// DELETE
 bool FreqDict::remove(const std::string& word)
 {
     if (word.empty()) {
         return false;
     }
 
-    // FIX: нормализуем ключ для регистронезависимого удаления
     const std::string key = normalize(word);
     std::size_t index = hashFunction(key);
 
@@ -153,7 +133,6 @@ bool FreqDict::remove(const std::string& word)
     return false;
 }
 
-// Получить все пары (слово, частота)
 std::vector<std::pair<std::string, int>> FreqDict::getAllWords() const
 {
     std::vector<std::pair<std::string, int>> result;
@@ -165,7 +144,6 @@ std::vector<std::pair<std::string, int>> FreqDict::getAllWords() const
     return result;
 }
 
-// Три самых частых слова
 std::vector<std::pair<std::string, int>> FreqDict::getTop3() const
 {
     auto allWords = getAllWords();
@@ -183,18 +161,17 @@ std::vector<std::pair<std::string, int>> FreqDict::getTop3() const
         allWords.begin(), allWords.begin() + topCount);
 }
 
-// Печать таблицы
 void FreqDict::print() const
 {
-    std::cout << "\n=== Хеш-таблица (метод цепочек) ===\n";
-    std::cout << "Размер: " << size_
-              << ", занято: " << number_
-              << ", загрузка: " << std::fixed << std::setprecision(2) << loadFactor()
-              << ", коллизий: " << collisionCount_ << "\n\n";
+    std::cout << "\n=== Hash Table (chaining) ===\n";
+    std::cout << "Size: " << size_
+              << ", used: " << number_
+              << ", load: " << std::fixed << std::setprecision(2) << loadFactor()
+              << ", collisions: " << collisionCount_ << "\n\n";
 
     std::cout << std::left
-              << std::setw(8) << "Индекс"
-              << std::setw(30) << "Список (ключ:частота)"
+              << std::setw(8) << "Index"
+              << std::setw(30) << "List (key:count)"
               << "\n" << std::string(45, '-') << "\n";
 
     for (int i = 0; i < size_; ++i) {
@@ -213,3 +190,4 @@ void FreqDict::print() const
     }
     std::cout << std::endl;
 }
+
