@@ -3,7 +3,7 @@
 #include <sstream>
 #include <cmath>
 
-// Читает ровно один конкретный символ (пропускает пробелы через sentry)
+// Читает ровно один конкретный символ
 std::istream& operator>>(std::istream& in, DelimiterIO&& dest)
 {
     std::istream::sentry sentry(in);
@@ -190,7 +190,7 @@ std::istream& operator>>(std::istream& in, DataStruct& dest)
         }
     }
 
-    // После чтения всех трёх полей, съедаем завершающее двоеточие и закрывающую скобку
+    // После чтения всех трёх полей
     if (ss)
     {
         ss >> sep{ ':' } >> sep{ ')' };
