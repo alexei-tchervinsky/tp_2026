@@ -21,7 +21,6 @@ std::istream& operator>>(std::istream& in, DelimiterIO&& dest)
 }
 
 // Читает double в научном формате: 1.0e-1, 5.0E+2
-// Проверяет: наличие e/E, точки в мантиссе, отсутствие суффикса d/D
 std::istream& operator>>(std::istream& in, DoubleSciIO&& dest)
 {
     std::istream::sentry sentry(in);
@@ -29,8 +28,15 @@ std::istream& operator>>(std::istream& in, DoubleSciIO&& dest)
     {
         return in;
     }
-    std::string token;
+
+    // Пропускаем ведущие пробелы перед считыванием токена числа
     char c = 0;
+    while (in.get(c) && c == ' ') {}
+    if (!in) return in;
+
+    std::string token;
+    token += c;
+
     while (in.get(c) && c != ':' && c != ' ')
     {
         token += c;
@@ -108,6 +114,7 @@ std::istream& operator>>(std::istream& in, StringIO&& dest)
     return std::getline(in, dest.ref, '"');
 }
 
+
 std::istream& operator>>(std::istream& in, DataStruct& dest)
 {
     std::istream::sentry guard(in);
@@ -116,13 +123,6 @@ std::istream& operator>>(std::istream& in, DataStruct& dest)
         return in;
     }
 
-    std::string line;
-    if (!std::getline(in, line))
-    {
-        return in;
-    }
-
-    std::istringstream ss(line);
     DataStruct temp{0.0, '\0', ""};
     bool has_key1 = false;
     bool has_key2 = false;
@@ -133,58 +133,70 @@ std::istream& operator>>(std::istream& in, DataStruct& dest)
     using chr = CharLitIO;
     using str = StringIO;
 
-    ss >> sep{ '(' };
-    if (!ss)
+    // Читает открывающую скобку напрямую из основного потока
+    in >> sep{ '(' };
+    if (!in)
     {
-        in.setstate(std::ios::failbit);
         return in;
     }
 
-    for (int i = 0; i < 3 && ss; ++i)
+    for (int i = 0; i < 3 && in; ++i)
     {
-        std::string key_name;
-        ss >> sep{ ':' } >> key_name;
-        if (!ss)
+        in >> sep{ ':' };
+        if (!in)
         {
             break;
         }
 
+
+        std::string key_name;
+        char c = 0;
+        while (in.get(c) && c != ' ' && c != ':')
+        {
+            key_name += c;
+        }
+
+        if (c == ':')
+        {
+            in.putback(c);
+        }
+
         if (key_name == "key1")
         {
-            ss >> dbl{ temp.key1 } >> sep{ ':' };
-            if (ss)
+            in >> dbl{ temp.key1 } >> sep{ ':' };
+            if (in)
             {
                 has_key1 = true;
             }
         }
         else if (key_name == "key2")
         {
-            ss >> chr{ temp.key2 } >> sep{ ':' };
-            if (ss)
+            in >> chr{ temp.key2 } >> sep{ ':' };
+            if (in)
             {
                 has_key2 = true;
             }
         }
         else if (key_name == "key3")
         {
-            ss >> str{ temp.key3 } >> sep{ ':' };
-            if (ss)
+            in >> str{ temp.key3 } >> sep{ ':' };
+            if (in)
             {
                 has_key3 = true;
             }
         }
         else
         {
-            ss.setstate(std::ios::failbit);
+            in.setstate(std::ios::failbit);
         }
     }
 
-    if (ss)
+    if (in)
     {
-        ss >> sep{ ')' };
+        in >> sep{ ')' };
     }
 
-    if (ss && has_key1 && has_key2 && has_key3)
+    if (in && has_key1 && has_key2 && has_key3)
     {
         dest = temp;
     }
