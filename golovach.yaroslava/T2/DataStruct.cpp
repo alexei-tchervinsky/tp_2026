@@ -21,7 +21,6 @@ std::istream& operator>>(std::istream& in, DelimiterIO&& dest)
 }
 
 // Читает double в научном формате: 1.0e-1, 5.0E+2
-// Проверяет: наличие e/E, точки в мантиссе, отсутствие суффикса d/D
 std::istream& operator>>(std::istream& in, DoubleSciIO&& dest)
 {
     std::istream::sentry sentry(in);
@@ -30,8 +29,7 @@ std::istream& operator>>(std::istream& in, DoubleSciIO&& dest)
         return in;
     }
 
-    // <<< ИСПРАВЛЕНИЕ: пропускаем пробелы после двоеточия >>>
-    in >> std::ws;
+    in >> std::ws; // пропускаем пробелы после ключа
 
     std::string token;
     char c = 0;
@@ -41,7 +39,7 @@ std::istream& operator>>(std::istream& in, DoubleSciIO&& dest)
     }
     if (in && c == ':')
     {
-        in.putback(c);
+        in.putback(c); // возвращаем ':' обратно в поток
     }
 
     if (token.empty())
@@ -164,7 +162,7 @@ std::istream& operator>>(std::istream& in, DataStruct& dest)
 
         if (key_name == "key1")
         {
-            ss >> dbl{ temp.key1 } >> sep{ ':' };
+            ss >> dbl{ temp.key1 };
             if (ss)
             {
                 has_key1 = true;
@@ -172,7 +170,7 @@ std::istream& operator>>(std::istream& in, DataStruct& dest)
         }
         else if (key_name == "key2")
         {
-            ss >> chr{ temp.key2 } >> sep{ ':' };
+            ss >> chr{ temp.key2 };
             if (ss)
             {
                 has_key2 = true;
@@ -180,7 +178,7 @@ std::istream& operator>>(std::istream& in, DataStruct& dest)
         }
         else if (key_name == "key3")
         {
-            ss >> str{ temp.key3 } >> sep{ ':' };
+            ss >> str{ temp.key3 };
             if (ss)
             {
                 has_key3 = true;
@@ -192,9 +190,10 @@ std::istream& operator>>(std::istream& in, DataStruct& dest)
         }
     }
 
+    // После чтения всех трёх полей, съедаем завершающее двоеточие и закрывающую скобку
     if (ss)
     {
-        ss >> sep{ ')' };
+        ss >> sep{ ':' } >> sep{ ')' };
     }
 
     if (ss && has_key1 && has_key2 && has_key3)
