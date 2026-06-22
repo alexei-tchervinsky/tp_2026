@@ -3,37 +3,30 @@
 #include <vector>
 #include <algorithm>
 #include <iterator>
-#include <limits>
+#include <sstream>   // для std::istringstream
 
 int main()
 {
     std::vector<DataStruct> data;
+    std::string line;
 
-    while (!std::cin.eof())
+    // Читаем построчно
+    while (std::getline(std::cin, line))
     {
-        if (!std::cin)
-        {
-            std::cin.clear();
-            std::cin.ignore(
-                std::numeric_limits<std::streamsize>::max(), '\n');
-            continue;
-        }
-
+        // Создаём поток из строки и пытаемся прочитать DataStruct
+        std::istringstream ss(line);
         DataStruct ds;
-        if (std::cin >> ds)
+        if (ss >> ds)
         {
             data.push_back(ds);
         }
-        else
-        {
-            std::cin.clear();
-            std::cin.ignore(
-                std::numeric_limits<std::streamsize>::max(), '\n');
-        }
+        // Если не удалось — просто игнорируем строку
     }
 
+    // Сортируем
     std::sort(data.begin(), data.end(), compareDataStruct);
 
+    // Выводим
     std::copy(data.begin(), data.end(),
               std::ostream_iterator<DataStruct>(std::cout, "\n"));
 
