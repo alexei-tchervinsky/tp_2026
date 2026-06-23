@@ -72,13 +72,7 @@ std::istream& operator>>(std::istream& in, DataStruct& dest)
         return in;
     }
 
-    std::string line;
-    if (!std::getline(in, line))
-    {
-        return in;
-    }
 #if 1
-
     DataStruct temp{0.0, '\0', ""};
     bool has_key1 = false;
     bool has_key2 = false;
@@ -152,6 +146,12 @@ std::istream& operator>>(std::istream& in, DataStruct& dest)
 
     return in;
 #else
+    std::string line;
+    if (!std::getline(in, line))
+    {
+        return in;
+    }
+
     std::istringstream ss(line);
 
     DataStruct temp{0.0, '\0', ""};
