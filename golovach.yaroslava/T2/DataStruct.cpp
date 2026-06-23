@@ -6,7 +6,7 @@
 // Читает ровно один конкретный символ
 std::istream& operator>>(std::istream& in, DelimiterIO&& dest)
 {
-    std::istream::sentry sentry(in);
+    std::istream::sentry sentry(in); // Проверяет состояние потока
     if (!sentry)
     {
         return in;
@@ -15,7 +15,7 @@ std::istream& operator>>(std::istream& in, DelimiterIO&& dest)
     in >> c;
     if (in && c != dest.exp)
     {
-        in.setstate(std::ios::failbit);
+        in.setstate(std::ios::failbit); // Ломает поток, если символ не совпал с ожидаемым
     }
     return in;
 }
@@ -30,10 +30,12 @@ std::istream& operator>>(std::istream& in, DoubleSciIO&& dest)
     }
 
     in >> std::ws; // пропускаем пробелы после ключа
-
+#if 1
+    return in >> std::scientific >> dest.ref;
+#else
     std::string token;
     char c = 0;
-    while (in.get(c) && c != ':')
+    while (in.get(c) && c != ':') // Считываем все символы числа, пока не упремся в ':'
     {
         token += c;
     }
@@ -72,6 +74,8 @@ std::istream& operator>>(std::istream& in, DoubleSciIO&& dest)
         in.setstate(std::ios::failbit);
         return in;
     }
+
+    //До и после точки должна быть хотя бы одна цифра
     size_t start = (!mantissa.empty() && mantissa[0] == '-') ? 1 : 0;
     if (dotpos == start || dotpos == mantissa.size() - 1)
     {
@@ -79,7 +83,7 @@ std::istream& operator>>(std::istream& in, DoubleSciIO&& dest)
         return in;
     }
 
-    // Преобразование
+    // Если все проверки пройдены, парсим строку в double через строковый поток
     std::istringstream ss(token);
     ss >> dest.ref;
     if (ss.fail())
@@ -87,6 +91,7 @@ std::istream& operator>>(std::istream& in, DoubleSciIO&& dest)
         in.setstate(std::ios::failbit);
     }
     return in;
+#endif    
 }
 
 // Читает символьный литерал вида 'A'
